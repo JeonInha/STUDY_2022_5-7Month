@@ -34,14 +34,29 @@ public class Ex4 {
 		
 	   System.out.println("\n***사용자가 입력한 갯수의 정수의 합 구하기***");
 	   double sum1=0;
+	   double sum2=0;
+	   int count1=0;
+	   int count2=0;
 	   System.out.printf("정수 갯수 입력: ");
 	   x=sc.nextInt();
+	   int y;
 		for(i=1; i<=x; i++) {
 			System.out.printf("정수 입력 %d: ", i);
-			sum1=sum1+sc.nextInt();
+			y=sc.nextInt();
+			if(y%2==0) {	
+			sum1=sum1+y;
+			count1++;
+			} else {
+				sum2=sum2+y;
+				count2++;
+			}
 		}
-		System.out.println("합: "+sum1);
-		System.out.println("평균: "+sum1/x);
+		System.out.println("합: "+sum1+sum2);
+		System.out.println("평균: "+(sum1+sum2)/x);
+		System.out.println("홀수 합: "+sum2);
+		System.out.println("홀수 평균: "+sum2/count2);
+		System.out.println("짝수 합: "+sum1);
+		System.out.println("짝수 평균: "+sum1/count1);
 		
 	}
 }

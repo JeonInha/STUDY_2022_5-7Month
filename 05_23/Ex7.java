@@ -21,29 +21,31 @@ public class Ex7 {
 
         // 사용자가 입력한 5개의 정수 중 가장 큰 수 출력하기
         System.out.println("***입력한 정수 중 가장 큰 수 출력***");
-        x = 0;
-        int new1 = 0;
-        for (int i = 0; i < 5; i++) {
+        System.out.print("정수 입력: ");
+		int ini = sc.nextInt();
+        for (int i = 0; i < 4; i++) {
             System.out.print("정수 입력: ");
-            new1 = sc.nextInt();
-            if (x < new1) {
-                x = new1;
+            int nw = sc.nextInt();
+            if (ini < nw) {
+                ini = nw;
             }
         }
-        System.out.print("가장 큰 수: " + x);
+        System.out.print("가장 큰 수: " + ini);
         System.out.println("\n\n\n");
 
         // 사용자가 입력한 영단어(latin 문자열)에서 모음이 몇개인지 출력
         System.out.println("***입력한 라틴어에서 모음이 몇개인가?***");
+		
         System.out.print("정수 입력: ");
         sc.nextLine();
+		
         String latin = sc.nextLine();
         x = latin.length();
         int num = 0;
-        char y;
+		
         for (int i = 0; i < x; i++) {
-            y = latin.charAt(i);
-            if (y == 97 || y == 101 || y == 105 || y == 111 || y == 117)
+            char y = latin.charAt(i);
+            if (y=='a'||y=='e'||y=='i'||y=='o'||y=='u')
                 num++;
         }
         System.out.println("모음 갯수: " + num);
