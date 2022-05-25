@@ -4,26 +4,23 @@ public class Ex2 {
 	public static void main(String[] args) {
 		Scanner sc=new Scanner(System.in);
 
-// Fizz Buzz
-// 3의 배수 Fizz
-// 5의 배수 Buzz
-// 3의 배수면서 5의 배수면 Fizz Buzz
-// 35까지
+		// Fizz Buzz
+		// 3의 배수 Fizz
+		// 5의 배수 Buzz
+		// 3의 배수면서 5의 배수면 Fizz Buzz
+		// 35까지
 		
 		System.out.println("Fizz Buzz Game");
 		for (int i=1; i<=35; i++) {
 			if(i%3==0&&i%5==0) {
 			System.out.println("!Fizz Buzz!");
-			}
-			if (i%3==0) {
+			} else if (i%3==0) {
 			System.out.printf("Fizz, ");
-			continue;
-			}
-			if (i%5==0) {
+			} else if (i%5==0) {
 			System.out.printf("Buzz, ");	
-			continue;
+			} else {
+			System.out.printf("%d, ", i);
 			}
-			System.out.printf("%d, ", i); //숫자 출력
 		}
 		
 		
@@ -50,10 +47,11 @@ public class Ex2 {
 		System.out.print("정수 입력: ");
 		Long input=sc.nextLong();
 		Long div;
-		for (int i=1; i<input; i++) { 
-		//1부터 input까지 루프로 나눗셈을 돌려 소수인지 확인 
+		
+		for (int i=1; i<input; i++) {  //1부터 input까지 루프로 나눗셈을 돌려 소수인지 확인 
 			i++;
 			div=input%i; //나머지
+			if (input==2) break;
 			if (div==0) { //나머지가 없다면=소수가 있다면 프로그램 셧다운
 			 System.out.printf("소수가 아닙니다. 소수 예시: %d", i);
 			 return;
@@ -62,14 +60,3 @@ public class Ex2 {
 		System.out.printf("소수가 맞습니다!");
 	}
 }
-		
-		
-
-
-
-
-
-
-
-
-
