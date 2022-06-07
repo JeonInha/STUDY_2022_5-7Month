@@ -11,6 +11,8 @@ String class의 format메소드: printf와 동일한 문법으로, 서식대로 
 
 ex: return String.format("%02d", year%100);		// 연도를 끝 두자리수만 표현하여 리턴
 
+
+
 ******************************
 
 Scanner sc=new Scanner(System.in);
