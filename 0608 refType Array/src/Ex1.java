@@ -5,8 +5,8 @@ public class Ex1 {
 	int input;
 	
 	public void movieSeatManage() {
-		boolean[] movieSeat = new boolean[10];	// 초기화
-		for (int i=5; i<8; i++)
+		boolean[] movieSeat = new boolean[10];	//boolean으로 생성. true: 이선좌
+		for (int i=5; i<8; i++)		// 초기화
 			movieSeat[i] = true;
 		
 		while (true) {	// 좌석예매 무한루프
@@ -14,7 +14,11 @@ public class Ex1 {
 			System.out.print("좌석을 예약하시겠습니까?  1/0   ");
 			input=sc.nextInt();
 			
-			if (input==1) {
+			if (input==0) {		// 좌석 예매 no
+				System.out.println("좌석예매 시스템을 종료합니다.");
+				break;	
+				
+			} else if (input==1){	// 좌석 예매 no
 				System.out.println("현재의 예약 상태는 다음과 같습니다.");	//좌석 출력
 				System.out.println("----------------------------------------");
 				System.out.println(" 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10|");
@@ -27,19 +31,19 @@ public class Ex1 {
 				
 				System.out.print("몇번째 좌석을 예매하시겠습니까?   ");	//좌석 예매
 				input=sc.nextInt();
-				if (input>10||input<1)
+				
+				if (input>10||input<1)	// 예매 잘못 입력
 					System.out.println("잘못된 입력. 처음으로 돌아갑니다.");
-				else if (movieSeat[input-1])	// 이선좌
+				
+				else if (movieSeat[input-1])	// 이선좌 예매 시도
 					System.out.println("이미 선택된 좌석입니다. 처음으로 돌아갑니다.");
-				else {
-					movieSeat[input-1] = true;
+				
+				else {	// 예매 성공
+					movieSeat[input-1] = true;	
 					System.out.println("예약되었습니다.");
 				}
 				
-			} else if (input==0){
-				System.out.println("좌석예매 시스템을 종료합니다.");
-				break;	
-			} else
+			} else	// 좌석 예매 잘못된 입력
 				System.out.println("잘못된 입력입니다.");
 		}
 	}
@@ -53,7 +57,7 @@ public class Ex1 {
 			input=sc.nextInt();
 			if (input>100||input<1) {
 				System.out.println("잘못된 입력. 다시 입력하세요.");
-				i--;
+				i--;		// 증감식에서 쓰는 변수는 증감식에서만 쓰자 .....
 			}
 			histogram[i]=input;
 		}

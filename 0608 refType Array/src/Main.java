@@ -27,7 +27,6 @@ class Manage {
 		}
 	}
 
-
 	private void printAll(Student s) {	// 학생 하나의 정보를 전부 출력하는 메소드
 		System.out.printf("학생 이름: %s\n", s.getName());
 		System.out.printf("국어 점수: %s\n", s.getKo());

@@ -1,5 +1,6 @@
 public class Array4 {
 	public static void someMethod(int[] arr) {
+		
 		for (int number: arr) {
 			System.out.println(number);
 		}

@@ -54,3 +54,19 @@ class Student { // 학생 클래스
 	}
 }
 
+class Class {
+	private Student[] students;
+
+	public Student[] getStudents() {
+		return students;
+	}
+
+	public void setStudents(Student[] students) {
+		this.students = students;
+	}
+}
+
+class Grade {
+	private Class[] classes;
+}
+
