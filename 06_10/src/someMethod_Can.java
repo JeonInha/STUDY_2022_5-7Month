@@ -25,11 +25,11 @@ public class someMethod_Can {
 	
 	public Can printCan(int a) {
 		if (a==COLA) {
-			return cola;
+			return new Can("콜라");
 		} else if (a==SODA) {
-			return soda;
+			return new Can("사이다");
 		} else if (a==FANTA) {
-			return fanta;
+			return new Can("판타");
 		} return null;
 	}
 	
@@ -44,7 +44,7 @@ public class someMethod_Can {
 	}
 	
 	public static void main(String[] args) {
-		someMethod_Can can=new someMethod_Can();	
+	someMethod_Can can=new someMethod_Can();	
 	System.out.println(can.printCan(1));
 	System.out.println(can.printCan("콜라"));
 	
