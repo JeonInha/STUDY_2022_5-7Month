@@ -2,25 +2,131 @@
 
 학습목표
 1. 상속
-	접근제한
 2. 메소드 오버라이딩
 3. 클래스 다이어그램 (이클립스 플러그인 설치!
-4.
-
 
 *************************
 
-상속: 기존에 존재하는 유사한 클래스로부터 속성과 동작을 이어받고 자신이 필요한 기능을 추가하는 기법.
+상속*(is-a 관계): 기존에 존재하는 유사한 클래스로부터 속성과 동작을 이어받고 자신이 필요한 기능을 추가하는 기법. 부모클래스의 필드와 메소드를 재사용함. 원하는 코드의 일부만 가지고 있더라도 상속을 통하여 ㄷ부분은 사용하고 일부는 변경하여 사용할 수 있다. 
+특징: 
+- 중복되는 코드를 줄일 수 있음.
+- 연속하여 상속되는 관계(조부모 - 부모 - 자식)도 만들 수 있음.(super로는 한단계 상속만 가리킴. 조부모를 가리킬 땐 중첩하여 쓰기.
+- java에서는 다중상속을 허용하지 않음.
 
 상속되는 클래스: 수퍼 클래스(부모 클래스=베이스 클래스)
 상속받는 클래스: 서브 클래스(자식 클래스=파생된 클래스)
+수퍼 클래스는 추상적, 서브 클래스는 구체적.
 
 ex: 포켓몬 피카츄와 구구를 만들기 위해 부모클래스"포켓몬"을 만들고 자식클래스로 "피카츄", "구구"를 만든다.
 
+상속관계는 신중히 만들 것. 단순한 코드재사용이 아님. is-a 관계에서만 사용해야 함에 주의
 
-상속관계는 신중히 만들 것
+상속 예시:
+class Person {
 
+	private String name;
+	private int age;
+	
+	public Person(String name, int age) {
+		this.name = name;
+		this.age = age;
+	}
+}
 
+class Student extends Person {
+	private int score;
+	
+	public Student(String name, int age, int score) {
+		super(name, age); // 부모 클래스에 있는 필드는 부모의 생성자 호출
+		this.score=score;
+	}
+}
 
-3. https://github.com/takezoe/amateras-modeler
+class Author extends Person {
+	private String bookList;
+	public Author(String name, int age, String bookList) {
+		super(name, age);
+		this.bookList=bookList;
+}
+
+public class Main {
+	public static void main(String[] args) {
+		Student s=new Student("학생 이름", 17, 90);
+		Author a=new Author("작가 이름", 30, "반지의 제왕");
+		
+		System.out.println(s.getName());	// 부모 클래스의 메소드 사용가능
+		System.out.println(s.getScore());
+		
+		System.out.println(a.getAge());		// 부모 클래스의 메소드 사용가능
+		System.out.println(a.getBookList());
+	}
+}
+
+접근제한자 (표로 정리)
+
+2. 중복메소드와 메소드 재정의
+- 중복정의 (method overloading)
+	같은 이름의 메소드를 여러개 정의하는 것. 자바에서 메소드는 하나의 클래스 내 같은 이름으로 하나의 메소드만 작성하는 것이 원칙. 하지만, 이름이 같지만 매개변수의 타입과 갯수가 다른 메소드는 작성할 수 있다.
+	
+	// 다양한 타입에 대응하는 메소드 만들기.
+	// Method Overloading이라고 함.
+	// param의 갯수, 타입, 순서를 다르게.
+	
+	public static void sum(int a, int b) {
+		System.out.println(a+b);
+	}
+	
+	public static void sum(double a, double b) {
+		System.out.println(a+b);
+	}
+
+	예시: println() 메소드는 사실 println(int x), println(String x), println(double x) 등으로 중복정의된 메소드. 그래서 어떤 데이터타입을 출력하고자 하든 "println()" 메소드 하나로 전부 출력할 수 있다.
+	
+- 재정의
+	상속받은 메소드의 변경이 필요할 때, 필요에 따라 상속된 메소드를 다시 정의해서 사용하는 것. 상속받은 메소드들을 필요에 맞추어 변경할 수 있음.
+	
+	메소드의 헤더 부분은 수퍼 클래스와 동일해야 하고, 수퍼 클래스의 메소드를 재정의하려면 메소드가 public으로 선언되어있어야 함에 유의.
+	실수로 메소드를 재정의하려다 새로운 메소드를 제작하는 실수를 막기 위한 주해, @Override를 활용. 이 주해를 달면 메소드가 재정의되지 않았을 때 컴파일에러로 알려줌.
+	
+	class Animals {
+	public void sound() {
+		System.out.println("동물은 제각각 소리를 냅니다.");
+	}
+}
+
+class Dogs extends Animals {
+	
+	@Override		// 이걸로 오버라이드 한게 맞는지 확인하기! // annotation
+	public void sound() {
+		System.out.println("υ´• ﻌ •`υ 앍왉 와르릉 컁");
+	}
+}
+	
+class Cats extends Animals {
+	
+	@Override
+	public void sound() {
+		System.out.println("=^._.^= ∫  먉 애옭 그르릉");
+	}
+}
+
+public class Inherit_Method {
+	public static void main(String[] args) {
+		Animals a=new Animals();
+		Dogs b=new Dogs();
+		Cats c=new Cats();
+		
+		a.sound();
+		b.sound();
+		c.sound();
+		//동일한 이름의 메소드가 있을 때 부모의 것이 아닌 자식의 메소드가 호출
+	}
+}
+
+- 중복정의와 재정의의 차이
+  중복정의는 같은 이름의 메소드를 여러개 정의하는 것. 재정의는 수퍼 클래스에 있던 상속받은 메소드를 다시 정의해서 내용을 변경하는 것.
+ 
+3. 클래스 다이어그램
+	클래스 사이의 관계를 그림으로 표현한 것. 자바에서는 다음 깃허브의 플러그인을 다운로드 받아 사용. 
+https://github.com/takezoe/amateras-modeler
 
