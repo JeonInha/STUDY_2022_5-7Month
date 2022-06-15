@@ -66,7 +66,7 @@ class Manage {
 	}
 
 	private void printAllMembers(ClubMember[] a) {		// 멤버 출력
-		System.out.printf("[회원 수: %d]\n", a.length);
+		System.out.printf("[회원 수: %d]\n", clubMemberNum);
 		System.out.println("-----------------------------------------------");
 		System.out.println(" 이름\t | 키\t\t몸무게\tBMI\t상태");
 		System.out.println("-----------------------------------------------");
