@@ -1,11 +1,28 @@
-import java.util.Arrays;
-import java.util.Scanner;
+import java.util.*;
 
 // 회원 관리 프로그램
 // 회원을 콘솔입력으로 등록할 수 있게, 최대 10명
 // 중복등록이 되면 안됨.
 // 중복 기준: 이름, 키, 몸무게가 동일하면 중복처리
 // 기준에 따라 집계를 해서 목록을 보여줘야 함 (기준: 비만도)
+
+class JudgeWeight implements Comparator<ClubMember> {
+	@Override
+	public int compare(ClubMember o1, ClubMember o2) {
+			if (o1.getWeight()>o2.getWeight()) return 1;
+			else if (o1.getWeight()<o2.getWeight()) return -1;
+			else return 0;
+	}
+}
+
+class JudgeTall implements Comparator<ClubMember> {
+	@Override
+	public int compare(ClubMember o1, ClubMember o2) {
+		if (o1.getTall()>o1.getTall()) return 1;
+		else if (o1.getTall()<o1.getTall()) return -1;
+		else return 0;
+	}
+}
 
 class Human {
 	private String name;
@@ -116,18 +133,58 @@ class Manage {
 	Scanner sc = new Scanner(System.in);
 	ClubMember[] club = new ClubMember[10];
 	
+	public Manage() {
+		manage();
+	}
+	
+	private ClubMember[] chooseCriterion() {
+		System.out.print("기준 선택    1. BMI 순(내림차순) / 2. 키(오름차순) / 3. 몸무게(오름차순):  ");
+		int input = sc.nextInt();
+		if (input==1) return arrayBMI(club);
+		else if (input==2) {
+			ClubMember[] a =arrayBMI(club);
+			Arrays.sort(a, new JudgeTall());
+			return a;
+		} 
+		else if (input==3) {
+			ClubMember[] a =arrayBMI(club);
+			Arrays.sort(a, new JudgeWeight());
+			return a;
+		}
+		else {
+			System.out.println("잘못된 입력. BMI 정렬로 출력합니다.");
+			return arrayBMI(club);
+		}
+	}
+	
 			
 			
 	private void printAllMembers(ClubMember[] a) {
+		System.out.printf("[회원 수: %d]\n", a.length);
+		System.out.println("-----------------------------------------------");
+		System.out.println(" 이름\t | 키\t\t몸무게\tBMI\t상태");
+		System.out.println("-----------------------------------------------");
 		for (int i = 0; i < a.length; i++) {
 			if (a[i] == null)
 				continue;
 			System.out.println(a[i]);
 		}
-		System.out.println("출력 완료");
+		System.out.println("-----------------------------------------------");
+	}
+	
+	private void arrayNullRight() {	// Null을 오른쪽으로 밀어버리는 로직
+			for (int i=0; i<club.length; i++) {
+			for (int j=0; j<club.length-1; j++) {
+				if (club[j]==null) {
+					ClubMember x = club[j];
+					club[j] = club[j+1];
+					club[j+1] = x;
+				}
+			}
+		}
 	}
 
-	private ClubMember[] arrayBMI(ClubMember[] a) {
+	private ClubMember[] arrayBMI(ClubMember[] a) {		// BMI순으로 정리하는 로직
 		int countNull=0;
 		for (int i=0; i<a.length; i++) {
 			if (a[i]==null) 
@@ -155,43 +212,79 @@ class Manage {
 	}
 
 	private void registMember(Human input) {
-		boolean bool = false;
-		boolean bool2 = false;
+		boolean doppelganger = false;
+		boolean full = true;
 		for (int i = 0; i < 10; i++) { // 중복 판별
 			if (input.equals(club[i])) {
 				System.out.println("중복 등록은 불가합니다.");
-				bool = true;
+				full=false;
+				doppelganger= true;
 				break;
 			}
 		}
-		if (bool == false) { // 중복 판별 통과했을 때 등록
+		if (doppelganger == false) { // 중복 판별 통과했을 때 등록
 			for (int i = 0; i < 10; i++) {
 				if (club[i] == null) {
-					club[i] = new ClubMember(input.getName(), input.getTall(), input.getWeight(), i + 1);
-					club[i].setState(club[i].obesityJudge());
-					bool2 = true;
+					club[i] = new ClubMember(input.getName(), input.getTall(), input.getWeight());
+					full = false;
 					break;
 				}
 			}
 		}
-		if (bool2 == false)
+		if (full == true)
 			System.out.println("정원이 다 찼습니다. 등록이 불가합니다.");
 	}
+	
+	private void deleteMember() {
+		int count=0;
+		System.out.print("지울 회원의 정보 입력");
+		Human delete=inputHuman();
+		for (int i=0; i<club.length; i++) {
+			if (delete.equals(club[i])) {
+				System.out.printf("%s 회원의 정보를 삭제합니다.\n", club[i].getName());
+				club[i]=null;
+				count++;
+			}
+		}
+		if (count==0)
+			System.out.println("등록되지 않은 회원입니다.");
+		arrayNullRight();
+	}
+	
+	private void editMember() {
+		int count=0;
+		System.out.println("수정할 회원의 정보 입력");
+		Human input=inputHuman();
+		for (int i=0; i<club.length; i++) {
+			if (input.equals(club[i])) {
+				club[i]=null;
+				count++;
+				System.out.println("회원의 수정 정보 입력");
+				Human edit=inputHuman();
+				club[i]= new ClubMember(edit.getName(), edit.getTall(), edit.getWeight());
+			}
+		}
+		if (count==0) {
+			System.out.println("등록되지 않은 회원입니다.");
+			return;
+		} 
+	}
 
-	public void manage() {
-		club[0] = new ClubMember("a", 182, 77, 1, "경도비만");
-		club[1] = new ClubMember("b", 155, 43, 2, "저체중");
-		club[2] = new ClubMember("c", 165, 55, 3, "정상");
-		club[3] = new ClubMember("d", 171, 60, 4, "정상");
-		club[4] = new ClubMember("e", 186, 80, 5, "경도비만");
-		club[5] = new ClubMember("f", 166, 60, 6, "정상");
-		club[6] = new ClubMember("g", 145, 55, 7, "중도비만");
-		club[7] = new ClubMember("h", 178, 66, 8, "정상");
+	private void manage() {
+		club[0] = new ClubMember("Abert", 182, 77);
+		club[1] = new ClubMember("Mike", 155, 42);
+		club[2] = new ClubMember("Clair", 165, 55);
+		club[3] = new ClubMember("Mclain", 171, 60);
+		club[4] = new ClubMember("Luna", 186, 80);
+		club[5] = new ClubMember("Tomy", 166, 60);
+		club[6] = new ClubMember("Losa", 145, 55);
+		club[7] = new ClubMember("Jina", 178, 66);
 		int num = 0;
+		
 		while (true) {
 			if (num == 1) {
-				System.out.println("회원 정보 출력");
-				printAllMembers(arrayBMI(club));
+				System.out.println("회원 정보 열람");
+				printAllMembers(chooseCriterion());
 				num = 0;
 			} else if (num == 2) {
 				System.out.println("회원 신규 등록");
@@ -199,9 +292,11 @@ class Manage {
 				num = 0;
 			} else if (num == 3) {
 				System.out.println("회원 삭제");
+				deleteMember();
 				num = 0;
 			} else if (num == 4) {
 				System.out.println("회원 정보 수정");
+				editMember();
 				num = 0;
 			} else if (num == 0) {
 				System.out.println("====================");
@@ -210,7 +305,7 @@ class Manage {
 				System.out.println("3. 회원 삭제");
 				System.out.println("4. 회원 정보 수정");
 
-				System.out.println("9. 회원 삭제");
+				System.out.println("9. 프로그램 종료");
 				System.out.println("--------------------");
 				System.out.print("입력: ");
 				num = sc.nextInt();
@@ -232,7 +327,6 @@ class Manage {
 
 public class Ex2_memberManage {
 	public static void main(String[] args) {
-		Manage ma = new Manage();
-		ma.manage();
+		new Manage();
 	}
 }
