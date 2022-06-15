@@ -47,22 +47,17 @@ class Manage {
 	private ClubMember[] chooseCriterion() {	// 정렬 기준 고르기
 		System.out.print("기준 선택    1. BMI 순(내림차순) / 2. 키(오름차순) / 3. 몸무게(오름차순):  ");
 		int input = sc.nextInt();
+		ClubMember[] a = returnNoNull();
 		if (input == 1) {
-			ClubMember[] a = returnNoNull();
 			Arrays.sort(a, new JudgeBMI());
-			return a;
 		} else if (input == 2) {
-			ClubMember[] a = returnNoNull();
 			Arrays.sort(a, new JudgeTall());
-			return a;
 		} else if (input == 3) {
-			ClubMember[] a = returnNoNull();
 			Arrays.sort(a, new JudgeWeight());
-			return a;
 		} else {
 			System.out.println("잘못된 입력. 그냥 출력합니다.");
-			return club;
 		}
+		return a;
 	}
 
 	private void printAllMembers(ClubMember[] a) {		// 멤버 출력
