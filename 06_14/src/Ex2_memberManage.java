@@ -1,28 +1,11 @@
-import java.util.*;
+import java.util.Arrays;
+import java.util.Scanner;
 
 // 회원 관리 프로그램
 // 회원을 콘솔입력으로 등록할 수 있게, 최대 10명
 // 중복등록이 되면 안됨.
 // 중복 기준: 이름, 키, 몸무게가 동일하면 중복처리
 // 기준에 따라 집계를 해서 목록을 보여줘야 함 (기준: 비만도)
-
-class JudgeWeight implements Comparator<ClubMember> {
-	@Override
-	public int compare(ClubMember o1, ClubMember o2) {
-			if (o1.getWeight()>o2.getWeight()) return 1;
-			else if (o1.getWeight()<o2.getWeight()) return -1;
-			else return 0;
-	}
-}
-
-class JudgeTall implements Comparator<ClubMember> {
-	@Override
-	public int compare(ClubMember o1, ClubMember o2) {
-		if (o1.getTall()>o1.getTall()) return 1;
-		else if (o1.getTall()<o1.getTall()) return -1;
-		else return 0;
-	}
-}
 
 class Human {
 	private String name;
@@ -72,26 +55,18 @@ class Human {
 /////////////////////////////////
 
 class ClubMember extends Human {
-	private int memberNum;
 	private String state;
+	private double bmi;
 
-	public ClubMember(String name, double tall, double weight, int memberNum) {
+	public ClubMember(String name, double tall, double weight) {
 		super(name, tall, weight);
-		this.memberNum = memberNum;
+		state=obesityJudge();
+		bmi=getBMI();
 	}
 
-	public ClubMember(String name, double tall, double weight, int memberNum, String state) {
+	public ClubMember(String name, double tall, double weight, String state) {
 		super(name, tall, weight);
-		this.memberNum = memberNum;
 		this.state = state;
-	}
-
-	public int getMemberNum() {
-		return memberNum;
-	}
-
-	public void setMemberNum(int memberNum) {
-		this.memberNum = memberNum;
 	}
 
 	public String getState() {
@@ -123,7 +98,15 @@ class ClubMember extends Human {
 
 	@Override
 	public String toString() {
-		return String.format("| %02d | %s\t%.2f\t%.2f\t%s", memberNum, getName(), getTall(), getWeight(), state);
+		return String.format(" %s\t | %.2f\t%.2f\t%.2f\t%s", getName(), getTall(), getWeight(), getBmi(), state);
+	}
+
+	public double getBmi() {
+		return bmi;
+	}
+
+	public void setBmi(double bmi) {
+		this.bmi = bmi;
 	}
 }
 
@@ -135,26 +118,6 @@ class Manage {
 	
 	public Manage() {
 		manage();
-	}
-	
-	private ClubMember[] chooseCriterion() {
-		System.out.print("기준 선택    1. BMI 순(내림차순) / 2. 키(오름차순) / 3. 몸무게(오름차순):  ");
-		int input = sc.nextInt();
-		if (input==1) return arrayBMI(club);
-		else if (input==2) {
-			ClubMember[] a =arrayBMI(club);
-			Arrays.sort(a, new JudgeTall());
-			return a;
-		} 
-		else if (input==3) {
-			ClubMember[] a =arrayBMI(club);
-			Arrays.sort(a, new JudgeWeight());
-			return a;
-		}
-		else {
-			System.out.println("잘못된 입력. BMI 정렬로 출력합니다.");
-			return arrayBMI(club);
-		}
 	}
 	
 			
@@ -226,6 +189,7 @@ class Manage {
 			for (int i = 0; i < 10; i++) {
 				if (club[i] == null) {
 					club[i] = new ClubMember(input.getName(), input.getTall(), input.getWeight());
+					club[i].setState(club[i].obesityJudge());
 					full = false;
 					break;
 				}
@@ -284,7 +248,7 @@ class Manage {
 		while (true) {
 			if (num == 1) {
 				System.out.println("회원 정보 열람");
-				printAllMembers(chooseCriterion());
+				printAllMembers(arrayBMI(club));
 				num = 0;
 			} else if (num == 2) {
 				System.out.println("회원 신규 등록");
