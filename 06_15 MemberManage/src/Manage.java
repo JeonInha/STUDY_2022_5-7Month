@@ -16,7 +16,7 @@ class Manage {
 	
 	private ClubMember[] returnNoNull() {	// 정렬을 위해 Null이 없는 가변 배열 출력
 		arrayNullRight();
-		ClubMember[] copy = Arrays.copyOf(club, club.length-(10-clubMemberNum));
+		ClubMember[] copy = Arrays.copyOf(club, clubMemberNum);
 		return copy;
 	}
 	
