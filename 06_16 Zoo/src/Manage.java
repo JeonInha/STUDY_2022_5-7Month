@@ -53,6 +53,15 @@ public class Manage {
 		}
 	}
 	
+	private Animal inputAnimalShort() {
+		Animal a;
+		System.out.println("동물의 이름, 종 차례로 입력");
+		String inputName = sc.next();
+		String inputSpecies = sc.next();
+		a = new EatMeatAnimal(inputName, inputSpecies, 0, 0);
+		return a;
+	}
+
 	/*
 	 * 1번 메뉴 정렬 출력 구현
 	 * 
@@ -64,7 +73,7 @@ public class Manage {
 		System.out.println("1. 종(오름차순) | 2. 종(내림차순) ");
 		System.out.println("3. 식성(오름차순) | 4. 식성(내림차순) ");
 		num = sc.nextInt();
-		
+
 		Comparator<Animal> a = new Comparator<Animal>() {
 			@Override
 			public int compare(Animal o1, Animal o2) {
@@ -85,85 +94,87 @@ public class Manage {
 		Arrays.sort(copy, a);
 		return copy;
 	}
-	
+
 	/*
 	 * 2번 메뉴 객체 추가 구현
 	 */
-	
+
 	private Staff inputStaff() {
 		Staff input;
 		System.out.println("직원의 이름, 역할 차례로 입력");
 		String inputName = sc.next();
 		String inputRole = sc.next();
-		
+
 		if (inputRole.equals("사육사"))
 			input = new Tamer(inputName, inputRole);
-		else 
+		else
 			input = new Staff(inputName, inputRole);
 		return input;
 	}
-	
+
 	private Animal inputAnimal() {
 		Animal input;
 		System.out.printf("동물의 식성 정보 입력   1. 육식 / 2. 초식 / 3. 잡식  :  ");
 		int inputTaste = 0;
 		do {
 			inputTaste = sc.nextInt();
-		if (!(0<inputTaste&&inputTaste<4))
-			System.out.println("잘못된 입력. 다시 입력");
-		} while (!(0<inputTaste&&inputTaste<4));
-		
+			if (!(0 < inputTaste && inputTaste < 4))
+				System.out.println("잘못된 입력. 다시 입력");
+		} while (!(0 < inputTaste && inputTaste < 4));
+
 		System.out.println("동물의 종, 이름, 나이, 무게 입력");
-		// String name, String species, int age, double weight, String tamerName
 		String inputSpecies = sc.next();
 		String inputName = sc.next();
 		int inputAge = sc.nextInt();
 		double inputWeight = sc.nextDouble();
-		if (inputTaste==1)
+		if (inputTaste == 1)
 			input = new EatMeatAnimal(inputName, inputSpecies, inputAge, inputWeight);
-		else if (inputTaste==2)
+		else if (inputTaste == 2)
 			input = new EatGrassAnimal(inputName, inputSpecies, inputAge, inputWeight);
 		else
 			input = new EatAllAnimal(inputName, inputSpecies, inputAge, inputWeight);
 		return input;
 	}
-	
+
 	private Object[] addMembers(Object[] input) {
-		Object[] add = Arrays.copyOf(input, input.length+1);
+		Object[] add = Arrays.copyOf(input, input.length + 1);
 		return add;
 	}
-	
+
 	/*
 	 * 3번 메뉴 객체 삭제 구현
 	 */
-	
-	private Object[] removeMembers(Object[] input) {
-		Object[] remove = Arrays.copyOf(input, input.length-1);
+
+	private Object[] reduceArray(Object[] input) {
+		Object[] remove = Arrays.copyOf(input, input.length - 1);
 		return remove;
 	}
-	
-	private Animal inputAnimalShort() {
-		Animal a;
-		System.out.println("동물의 이름, 종 차례로 입력");
-		String inputName = sc.next();
-		String inputSpecies = sc.next();
-		a = new EatMeatAnimal(inputName, inputSpecies, 0, 0);
-		return a;
+
+	private int deleteObjectInArray(Object input, Object[] array, int arrayNum) {
+		for (int i = 0; i < arrayNum; i++) { // 조회해서
+			if (input.equals(array[i])) { // 같은 대상을 찾아
+				array[i] = array[arrayNum - 1]; // 덮어씌워
+				array[arrayNum - 1] = null; // 지우고
+				array = reduceArray(array); // 배열길이 줄이기
+				arrayNum--; // staffNum 줄이기
+				System.out.println("삭제 완료");
+			}
+		}
+		return arrayNum;
 	}
-	
+
 	/*
 	 * 4번 메뉴 검색 구현
 	 */
-	
-	
+
 	/*
 	 * 5번 메뉴 정보 수정 구현
 	 */
-	
+
 	private void run() { // 동작부
 		inputMembers();
 		int selectClass;
-		String kind;
+		String kind = null;
 		int num;
 
 		System.out.println("=============================");
@@ -174,6 +185,7 @@ public class Manage {
 			System.out.println("<상위 메뉴>");
 			System.out.println("1. 직원 관리");
 			System.out.println("2. 동물 관리");
+			System.out.println("3. 사육 관리");
 			System.out.println();
 			System.out.println("9. 프로그램 종료");
 			System.out.print("입력:  ");
@@ -183,6 +195,8 @@ public class Manage {
 				kind = "직원";
 			} else if (selectClass == 2) {
 				kind = "동물";
+			} else if (selectClass == 3) {
+
 			} else if (selectClass == 9) {
 				System.out.println("프로그램 종료");
 				break;
@@ -190,76 +204,80 @@ public class Manage {
 				System.out.println("잘못된 입력");
 				continue;
 			}
-
-			System.out.println("-----------------------------");
-			System.out.println("<하위 메뉴>");
-			System.out.printf("1. %s 목록 출력\n", kind);
-			System.out.printf("2. %s 추가\n", kind);
-			System.out.printf("3. %s 삭제\n", kind);
-			System.out.printf("4. %s 검색\n", kind);
-			System.out.printf("5. %s 정보 수정\n", kind);
-			System.out.print("입력:  ");
-			num = sc.nextInt();
-			System.out.println("=============================");
-			if (num == 1) {
-				
-				System.out.println("<목록 출력>");
-				if (selectClass == 1) {
-					System.out.println("<이름>\t<역할>\n");
-					printAll(staffs);
-				} else {
-					Animal[] a= SelectSortRule();
-					System.out.println("<종>\t<이름>\t<나이>\t<무게>\t<사육사>\t<비고>");
-					printAll(a);
-				}
-				
-			} else if (num == 2) {
-				System.out.println("<추가>");
-				if (selectClass == 1) {
-					staffs= (Staff[]) addMembers(staffs);
-					staffs[staffNum] = inputStaff();
-					staffNum++;
-				} else {
-					animals=(Animal[]) addMembers(animals);
-					animals[animalNum] = inputAnimal();
-					animalNum++;
-				}
-				
-			} else if (num == 3) {
-				
-				System.out.println("<삭제>");
-				System.out.println("지울 대상의 정보 입력");
-				if (selectClass == 1) {
-					Staff input = inputStaff();	// 대상 정보 입력받으면
-					for (int i=0; i<staffNum; i++) {	// 조회해서
-						if (input.equals(staffs[i])) {	// 같은 대상을 찾아
-							staffs[i]=staffs[staffNum-1];	// 덮어씌워 
-							staffs[staffNum-1]=null;	// 지우고
-							staffs = (Staff[]) removeMembers (staffs); //배열길이 줄이기
-							staffNum--;	// staffNum 줄이기
-						}
-					}
-
-				} else {
-					Animal input = inputAnimal();	// 대상 정보 입력받으면
-					for (int i=0; i<animalNum; i++) {	// 조회해서
-						if (input.equals(animals[i])) {	// 같은 대상을 찾아
-							animals[i]=animals[animalNum-1];	// 덮어씌워 
-							animals[animalNum-1]=null;	// 지우고
-							animals = (Animal[]) removeMembers (animals); //배열길이 줄이기
-							animalNum--;
-						}
-					}
-				}
-
-			} else if (num == 4) {
-				System.out.println("<검색>");
-
-			} else if (num == 5) {
-				System.out.println("<정보 수정>");
-
+			//////// 사육메뉴 시작
+			if (selectClass == 3) {
+				System.out.println("-----------------------------");
+				System.out.println("<하위 메뉴>");
+				System.out.printf("1. 조련사 목록 출력");
+				System.out.printf("2. 조련사 별 사육 동물 출력");
+				System.out.println(((Tamer) staffs[0]).getTamedAnimal());
+				System.out.print("입력:  ");
+				num = sc.nextInt();
+				System.out.println("=============================");
+			//////// 사육메뉴 끝
 			} else {
-				System.out.println("잘못된 입력");
+				System.out.println("-----------------------------");
+				System.out.println("<하위 메뉴>");
+				System.out.printf("1. %s 목록 출력\n", kind);
+				System.out.printf("2. %s 추가\n", kind);
+				System.out.printf("3. %s 삭제\n", kind);
+				System.out.printf("4. %s 검색\n", kind);
+				System.out.printf("5. %s 정보 수정\n", kind);
+				System.out.print("입력:  ");
+				num = sc.nextInt();
+				System.out.println("=============================");
+				if (num == 1) {
+
+					System.out.println("<목록 출력>");
+					if (selectClass == 1) {
+						System.out.println("<이름>\t<역할>");
+						printAll(staffs);
+					} else {
+						Animal[] a = SelectSortRule();
+						System.out.println("<종>\t<이름>\t<나이>\t<무게>\t<비고>");
+						printAll(a);
+					}
+
+				} else if (num == 2) {
+					System.out.println("<추가>");
+					if (selectClass == 1) {
+						staffs = (Staff[]) addMembers(staffs);
+						staffs[staffNum] = inputStaff();
+						staffNum++;
+					} else {
+						animals = (Animal[]) addMembers(animals);
+						animals[animalNum] = inputAnimal();
+						animalNum++;
+					}
+
+				} else if (num == 3) {
+					System.out.println("<삭제>");
+					System.out.println("지울 대상의 정보 입력");
+					if (selectClass == 1) {
+						Staff input = inputStaff(); // 대상 정보 입력받으면
+						staffNum = deleteObjectInArray(input, staffs, staffNum); // 삭제 진행
+					} else {
+						Animal input = inputAnimalShort();
+						animalNum = deleteObjectInArray(input, animals, animalNum);
+					}
+
+				} else if (num == 4) {
+					System.out.println("<검색>");
+					if (selectClass == 1) {
+						System.out.println("이름 검색 / 직업 검색");
+					} else {
+						System.out.println("이름 검색 / 식성 검색 / 종 검색");
+					}
+				} else if (num == 5) {
+					System.out.println("<정보 수정>");
+					if (selectClass == 1) {
+						System.out.println("이름 검색 / 직업 검색");
+					} else {
+						System.out.println("이름 검색 / 식성 검색 / 종 검색");
+					}
+				} else {
+					System.out.println("잘못된 입력");
+				}
 			}
 		}
 	}

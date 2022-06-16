@@ -38,18 +38,21 @@ public class Staff {
 	}
 }
 
-class Tamer extends Staff {
+class Tamer extends Staff implements Itamable {
 	Animal[] tamedAnimal;
 	
 	public Tamer(String name, String role) {
 		super(name, role);
 	}
 
-	public Animal[] getTamedAnimal() {
-		return tamedAnimal;
+	@Override
+	public void setTamedAnimal() {
+		// TODO Auto-generated method stub
 	}
 
-	public void setTamedAnimal(Animal[] tamedAnimal) {
-		this.tamedAnimal = tamedAnimal;
+	@Override
+	public Animal[] getTamedAnimal() {
+		// TODO Auto-generated method stub
+		return tamedAnimal;
 	}
 }
