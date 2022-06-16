@@ -18,11 +18,20 @@ class JudgeTall implements Comparator<ClubMember> {
 	}
 }
 
-class JudgeBMI implements Comparator<ClubMember> {
+class JudgeBMI_R implements Comparator<ClubMember> {
 	@Override
 	public int compare(ClubMember o1, ClubMember o2) {
-		if (o1.getBmi()>o2.getBmi()) return 1;
-		else if (o1.getBmi()<o2.getBmi()) return -1;
+		if (o1.getBmi()>o2.getBmi()) return -1;
+		else if (o1.getBmi()<o2.getBmi()) return 1;
 		else return 0;
 	}
+}
+
+class JudgeName implements Comparator<ClubMember> {
+	@Override
+	public int compare(ClubMember o1, ClubMember o2) {
+		return o1.getName().compareTo(o2.getName());	
+		// String이 가지고 있는 compareTo 사용
+	}
+	
 }
