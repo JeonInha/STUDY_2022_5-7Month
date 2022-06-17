@@ -45,14 +45,11 @@ class Tamer extends Staff implements Itamable {
 		super(name, role);
 	}
 
-	@Override
-	public void setTamedAnimal() {
-		// TODO Auto-generated method stub
+	public void setTamedAnimal(Animal[] tamedAnimal) {
+		this.tamedAnimal = tamedAnimal;
 	}
 
-	@Override
 	public Animal[] getTamedAnimal() {
-		// TODO Auto-generated method stub
 		return tamedAnimal;
 	}
 }
