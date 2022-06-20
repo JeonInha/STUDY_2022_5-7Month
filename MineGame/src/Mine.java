@@ -1,7 +1,7 @@
 class Mine {
 	private boolean mine;
 	private int arroundMineNum;
-	private int cellState;
+	int cellState;
 	// 0-none, 1-?, 2-√ 3-open
 	
 	public Mine(boolean mine, int arroundMineNum, int cellState) {
@@ -29,6 +29,4 @@ class Mine {
 	public void setCellState(int cellState) {
 		this.cellState = cellState;
 	}
-	
-	
 }
