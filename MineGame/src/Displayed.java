@@ -11,18 +11,18 @@ public class Displayed extends JFrame {
 	private int x = 9;
 	private int y = 9;
 	private Mine[][] field = new Mine[x][y];
-	// °¡·Î 9, ¼¼·Î 9, Áö·Ú 10°³ (12.3%)
+	// ê°€ë¡œ 9, ì„¸ë¡œ 9, ì§€ë¢° 10ê°œ (12.3%)
 	private int[] mineX = new int[mineNum];
 	private int[] mineY = new int[mineNum];
-	// Áö·ÚÀÇ x, y ÁÂÇ¥
+	// ì§€ë¢°ì˜ x, y ì¢Œí‘œ
 
 	////////////////////////////////////////////////
-	
-	private void setMineXY() { // Áö·Ú 10°³ »ı¼º
+
+	private void setMineXY() { // ì§€ë¢° 10ê°œ ìƒì„±
 		for (int i = 0; i < mineNum; i++) {
 			mineX[i] = (random.nextInt(x));
 			mineY[i] = (random.nextInt(y));
-			for (int j = 0; j < i; j++) { // Áßº¹¹æÁö
+			for (int j = 0; j < i; j++) { // ì¤‘ë³µë°©ì§€
 				if (mineX[i] == mineX[j] && mineY[i] == mineY[j]) {
 					i--;
 				}
@@ -30,7 +30,7 @@ public class Displayed extends JFrame {
 		}
 	}
 
-	private void countArroundMineNum(int a, int b) { // ÁÖº¯ Áö·Ú ¼ıÀÚ ¼¼±â
+	private void countArroundMineNum(int a, int b) { // ì£¼ë³€ ì§€ë¢° ìˆ«ì ì„¸ê¸°
 		int count = 0;
 		for (int i = -1; i < 2; i++) {
 			for (int j = -1; j < 2; j++) {
@@ -39,14 +39,14 @@ public class Displayed extends JFrame {
 						count++;
 					}
 				} catch (ArrayIndexOutOfBoundsException e) {
-					// try-catch·Î ¹üÀ§¸¦ ³Ñ´Â ÀÎµ¦½º¸¦ ¿¹¿ÜÃ³¸®
+					// try-catchë¡œ ë²”ìœ„ë¥¼ ë„˜ëŠ” ì¸ë±ìŠ¤ë¥¼ ì˜ˆì™¸ì²˜ë¦¬
 				}
 			}
 		}
 		field[a][b].setArroundMineNum(count);
 	}
 
-	private void reset() { // ÇÊµå ÃÊ±âÈ­
+	private void reset() { // í•„ë“œ ì´ˆê¸°í™”
 		for (int i = 0; i < y; i++) {
 			for (int j = 0; j < x; j++) {
 				field[i][j] = new Mine(false, 0, 0);
@@ -54,7 +54,7 @@ public class Displayed extends JFrame {
 		}
 	}
 
-	private void setMineinField() { // ÇÊµå¿¡ Áö·Ú ½É±â
+	private void setMineinField() { // í•„ë“œì— ì§€ë¢° ì‹¬ê¸°
 		reset();
 		for (int i = 0; i < y; i++) {
 			for (int j = 0; j < x; j++) {
@@ -66,7 +66,7 @@ public class Displayed extends JFrame {
 		}
 	}
 
-	private void setArroundMineNuminField() { // ÇÊµå¿¡ ÁÖº¯ Áö·Ú ¼ıÀÚ ½É±â
+	private void setArroundMineNuminField() { // í•„ë“œì— ì£¼ë³€ ì§€ë¢° ìˆ«ì ì‹¬ê¸°
 		for (int i = 0; i < y; i++) {
 			for (int j = 0; j < x; j++) {
 				countArroundMineNum(i, j);
@@ -93,7 +93,7 @@ public class Displayed extends JFrame {
 		else if (a.getCellState() == 1)
 			return "?";
 		else if (a.getCellState() == 2)
-			return "¡î";
+			return "âˆš";
 		else if (a.getCellState() == 3)
 			return Integer.toString(a.getArroundMineNum());
 		else
@@ -101,27 +101,27 @@ public class Displayed extends JFrame {
 
 	}
 
-//				if (field[i][j].getCellState() == 0) { // ¼¿ »óÅÂ¿¡ µû¶ó Ç¥½Ã
-//					System.out.print("|   "); // ¾È ¿¬ Ä­
+//				if (field[i][j].getCellState() == 0) { // ì…€ ìƒíƒœì— ë”°ë¼ í‘œì‹œ
+//					System.out.print("|   "); // ì•ˆ ì—° ì¹¸
 //				} else if (field[i][j].getCellState() == 1) {
-//					System.out.print("| ? "); // ¹°À½Ç¥ ¸Ş¸ğ
+//					System.out.print("| ? "); // ë¬¼ìŒí‘œ ë©”ëª¨
 //				} else if (field[i][j].getCellState() == 2) {
-//					System.out.print("| ¡î "); // Áö·Ú Ç¥½Ã
-//				} else if (field[i][j].getCellState() == 3) { // Ä­ ¿­±â
+//					System.out.print("| âˆš "); // ì§€ë¢° í‘œì‹œ
+//				} else if (field[i][j].getCellState() == 3) { // ì¹¸ ì—´ê¸°
 //					System.out.printf("| %d ", field[i][j].getArroundMineNum());
 //				}
 
 	Displayed() {
 
-		setMineXY(); // Áö·Ú »ı¼º
-//		TestMineXY(); // Å×½ºÆ®Áö·Ú
-		setMineinField(); // Áö·Ú ½É±â
-		setArroundMineNuminField(); // ±ÙÃ³ÀÇ Áö·Ú ¼ıÀÚ ½É±â
+		setMineXY(); // ì§€ë¢° ìƒì„±
+//		TestMineXY(); // í…ŒìŠ¤íŠ¸ì§€ë¢°
+		setMineinField(); // ì§€ë¢° ì‹¬ê¸°
+		setArroundMineNuminField(); // ê·¼ì²˜ì˜ ì§€ë¢° ìˆ«ì ì‹¬ê¸°
 
-		JPanel pnl = new JPanel(); // ÀüÃ¼ »óÀÚ
-		JPanel fieldBtns = new JPanel(); // Áö·Ú ÇÊµå
-		JPanel top = new JPanel(); // top »óÀÚ: ³ªÁß¿¡ Ãß°¡
-		BoxLayout pnlBox = new BoxLayout(pnl, BoxLayout.Y_AXIS); // topÀÌ¶û Áö·ÚÇÊµå ¼¼·Î·Î ½×±â
+		JPanel pnl = new JPanel(); // ì „ì²´ ìƒì
+		JPanel fieldBtns = new JPanel(); // ì§€ë¢° í•„ë“œ
+		JPanel top = new JPanel(); // top ìƒì: ë‚˜ì¤‘ì— ì¶”ê°€
+		BoxLayout pnlBox = new BoxLayout(pnl, BoxLayout.Y_AXIS); // topì´ë‘ ì§€ë¢°í•„ë“œ ì„¸ë¡œë¡œ ìŒ“ê¸°
 
 		//////////////////////////
 		pnl.setLayout(pnlBox);
@@ -131,12 +131,12 @@ public class Displayed extends JFrame {
 
 		add(pnl);
 		////////////////////////
-		// top ÆÄÆ®
-		JRadioButton open = new JRadioButton("Ä­ ¿­±â");
-		JRadioButton check = new JRadioButton("Áö·Ú Ã¼Å©");
-		JRadioButton memo = new JRadioButton("¸Ş¸ğ(? Ç¥½Ã)");
+		// top íŒŒíŠ¸
+		JRadioButton open = new JRadioButton("ì¹¸ ì—´ê¸°");
+		JRadioButton check = new JRadioButton("ì§€ë¢° ì²´í¬");
+		JRadioButton memo = new JRadioButton("ë©”ëª¨(? í‘œì‹œ)");
 		ButtonGroup stateBtn = new ButtonGroup();
-		JLabel winlose = new JLabel("Áö·ÚÃ£±â °ÔÀÓ ½ÃÀÛ");
+		JLabel winlose = new JLabel("ì§€ë¢°ì°¾ê¸° ê²Œì„ ì‹œì‘");
 
 		stateBtn.add(open);
 		stateBtn.add(check);
@@ -147,12 +147,12 @@ public class Displayed extends JFrame {
 		top.add(memo);
 		top.add(winlose);
 
-		open.setSelected(true); // open ¹öÆ° ¹Ì¸® ´­·¯Á®ÀÖµµ·Ï
+		open.setSelected(true); // open ë²„íŠ¼ ë¯¸ë¦¬ ëˆŒëŸ¬ì ¸ìˆë„ë¡
 
-		// Áö·Ú¿Í ¹öÆ°À» ¿¬°áÇÑ ¸Ê Á¦ÀÛ
+		// ì§€ë¢°ì™€ ë²„íŠ¼ì„ ì—°ê²°í•œ ë§µ ì œì‘
 		Map<Mine, JButton> mineBtn = new HashMap<Mine, JButton>();
 
-		///////////////////////// Áö·Ú ¹öÆ° ¾×¼Ç
+		///////////////////////// ì§€ë¢° ë²„íŠ¼ ì•¡ì…˜
 		ActionListener mineBtnAct = new ActionListener() {
 
 			@Override
@@ -160,41 +160,70 @@ public class Displayed extends JFrame {
 
 				JButton btn = (JButton) e.getSource();
 
-				for (Entry<Mine, JButton> entry : mineBtn.entrySet()) { // ¿£Æ®¸® »ç¿ëÇØ¼­ ÀüÃ¼¸¦ °ü¸®
+				for (Entry<Mine, JButton> entry : mineBtn.entrySet()) { // ì—”íŠ¸ë¦¬ ì‚¬ìš©í•´ì„œ ì „ì²´ë¥¼ ê´€ë¦¬
 					if (entry.getValue().equals(e.getSource())) {
 						Mine mine = entry.getKey();
 
-						if (open.isSelected()) {// Áö·ÚÄ­ÀÇ ¼¿ »óÈ² ¸ÕÀú º¯È­½ÃÅ°°í (¶óµğ¿À¹öÆ°À¸·Î if¹® ¾²±â)
+						if (open.isSelected()) {// ì§€ë¢°ì¹¸ì˜ ì…€ ìƒí™© ë¨¼ì € ë³€í™”ì‹œí‚¤ê³  (ë¼ë””ì˜¤ë²„íŠ¼ìœ¼ë¡œ ifë¬¸ ì“°ê¸°)
 							mine.setCellState(3);
-							btn.setEnabled(false); // ¼±ÅÃµÈ ¹öÆ° ºñÈ°¼ºÈ­
+							btn.setEnabled(false); // ì„ íƒëœ ë²„íŠ¼ ë¹„í™œì„±í™”
 						} else if (check.isSelected()) {
 							mine.setCellState(2);
 						} else if (memo.isSelected()) {
 							mine.setCellState(1);
 						}
 
-						btn.setText(cellStateToBLabel(mine)); // ¼¿ »óÈ² Ãâ·Â
-						winlose.setText("Áö·ÚÃ£±â °ÔÀÓÁß");
+						btn.setText(cellStateToBLabel(mine)); // ì…€ ìƒí™© ì¶œë ¥
+						winlose.setText("ì§€ë¢°ì°¾ê¸° ê²Œì„ì¤‘");
+						
+						
+						
+						// 0 ë°Ÿì•˜ì„ ë•Œ ì£¼ìœ„ ì—¬ëŠ” ë¡œì§
+						if (mine.getCellState() == 3 && mine.getArroundMineNum() == 0) {
 
-						if (mine.isMine()&&mine.getCellState()==3) { // Áö·Ú ¹â¾ÒÀ» ¶§
+							int co = 0;
+							int ro = 0;
+							for (int i = 0; i < y; i++) {
+								for (int j = 0; j < x; j++) {
+									if (field[i][j].equals(mine)) {	// ì¢Œí‘œ ì¶”ì¶œ
+										co = i;
+										ro = j;
+										break;
+									}
+								}
+							}
+
+							for (int i = -1; i < 2; i++) {
+								for (int j = -1; j < 2; j++) {
+									try {
+										mineBtn.get(field[i + co][j + ro]).doClick();	// ìë™ í´ë¦­í•´ì¤Œ. ì¢€ ëŠë¦¬ê¸´í•œë””
+									} catch (ArrayIndexOutOfBoundsException exception) {
+										// try-catchë¡œ ë²”ìœ„ë¥¼ ë„˜ëŠ” ì¸ë±ìŠ¤ë¥¼ ì˜ˆì™¸ì²˜ë¦¬
+									}
+								}
+							}
+						}
+
+						///// íŒ¨ë°° ë¡œì§
+						if (mine.isMine() && mine.getCellState() == 3) {
 							for (int i = 0; i < mineNum; i++) {
 								Mine minecell = field[mineY[i]][mineX[i]];
-									mineBtn.get(minecell).setText("¡Ú");
-									mineBtn.get(minecell).setEnabled(true);
-									mineBtn.get(minecell).setBackground(Color.red);
-									
+								mineBtn.get(minecell).setText("â˜…");
+								mineBtn.get(minecell).setEnabled(true);
+								mineBtn.get(minecell).setBackground(Color.red);
+
 							}
-							winlose.setText("ÆĞ¹è ¤Ğ ¤Ğ");
+							winlose.setText("íŒ¨ë°° ã…  ã… ");
 						}
-						
-						///// ½Â¸® ·ÎÁ÷
+
+						///// ìŠ¹ë¦¬ ë¡œì§
 						int resultCount = 0;
 						for (int i = 0; i < mineNum; i++) {
 							if (field[mineY[i]][mineX[i]].isMine() && field[mineY[i]][mineX[i]].getCellState() == 2)
 								resultCount++;
 						}
 						if (resultCount == mineNum) {
-							winlose.setText("½Â¸®!!!!");
+							winlose.setText("ìŠ¹ë¦¬!!!!");
 						}
 					}
 				}
