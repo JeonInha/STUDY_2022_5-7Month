@@ -7,21 +7,66 @@ public class Manage {
 	private int x = 9;
 	private int y = 9;
 	private Mine[][] field = new Mine[x][y];
-	// ê°€ë¡œ 9, ì„¸ë¡œ 9, ì§€ë¢° 10ê°œ (12.3%)
-
+	// °¡·Î 9, ¼¼·Î 9, Áö·Ú 10°³ (12.3%)
 	private int[] mineX = new int[mineNum];
 	private int[] mineY = new int[mineNum];
-	// ì§€ë¢°ì˜ x, y ì¢Œí‘œ
+	// Áö·ÚÀÇ x, y ÁÂÇ¥
 
-	public Manage() { // ìƒì„±ìë¡œ ì‹¤í–‰
-		manage();
+	public int getMineNum() {
+		return mineNum;
 	}
 
-	private void setMineXY() { // ì§€ë¢° 10ê°œ ìƒì„±
+	public void setMineNum(int mineNum) {
+		this.mineNum = mineNum;
+	}
+
+	public int getX() {
+		return x;
+	}
+
+	public void setX(int x) {
+		this.x = x;
+	}
+
+	public int getY() {
+		return y;
+	}
+
+	public void setY(int y) {
+		this.y = y;
+	}
+
+	public Mine[][] getField() {
+		return field;
+	}
+
+	public void setField(Mine[][] field) {
+		this.field = field;
+	}
+
+	public int[] getMineX() {
+		return mineX;
+	}
+
+	public void setMineX(int[] mineX) {
+		this.mineX = mineX;
+	}
+
+	public int[] getMineY() {
+		return mineY;
+	}
+
+	public void setMineY(int[] mineY) {
+		this.mineY = mineY;
+	}
+
+	
+	////////////////////////////////////////////////
+	private void setMineXY() { // Áö·Ú 10°³ »ı¼º
 		for (int i = 0; i < mineNum; i++) {
 			mineX[i] = (random.nextInt(x));
 			mineY[i] = (random.nextInt(y));
-			for (int j = 0; j < i; j++) { // ì¤‘ë³µë°©ì§€
+			for (int j = 0; j < i; j++) { // Áßº¹¹æÁö
 				if (mineX[i] == mineX[j] && mineY[i] == mineY[j]) {
 					i--;
 				}
@@ -29,7 +74,7 @@ public class Manage {
 		}
 	}
 
-	private void countArroundMineNum(int a, int b) { // ì£¼ë³€ ì§€ë¢° ìˆ«ì ì„¸ê¸°
+	private void countArroundMineNum(int a, int b) { // ÁÖº¯ Áö·Ú ¼ıÀÚ ¼¼±â
 		int count = 0;
 		for (int i = -1; i < 2; i++) {
 			for (int j = -1; j < 2; j++) {
@@ -38,14 +83,14 @@ public class Manage {
 						count++;
 					}
 				} catch (ArrayIndexOutOfBoundsException e) {
-					// try-catchë¡œ ë²”ìœ„ë¥¼ ë„˜ëŠ” ì¸ë±ìŠ¤ë¥¼ ì˜ˆì™¸ì²˜ë¦¬
+					// try-catch·Î ¹üÀ§¸¦ ³Ñ´Â ÀÎµ¦½º¸¦ ¿¹¿ÜÃ³¸®
 				}
 			}
 		}
 		field[a][b].setArroundMineNum(count);
 	}
 
-	private void reset() { // í•„ë“œ ì´ˆê¸°í™”
+	private void reset() { // ÇÊµå ÃÊ±âÈ­
 		for (int i = 0; i < y; i++) {
 			for (int j = 0; j < x; j++) {
 				field[i][j] = new Mine(false, 0, 0);
@@ -53,7 +98,7 @@ public class Manage {
 		}
 	}
 
-	private void setMineinField() { // í•„ë“œì— ì§€ë¢° ì‹¬ê¸°
+	void setMineinField() { // ÇÊµå¿¡ Áö·Ú ½É±â
 		reset();
 		for (int i = 0; i < y; i++) {
 			for (int j = 0; j < x; j++) {
@@ -65,7 +110,7 @@ public class Manage {
 		}
 	}
 
-	private void setArroundMineNuminField() { // í•„ë“œì— ì£¼ë³€ ì§€ë¢° ìˆ«ì ì‹¬ê¸°
+	void setArroundMineNuminField() { // ÇÊµå¿¡ ÁÖº¯ Áö·Ú ¼ıÀÚ ½É±â
 		for (int i = 0; i < y; i++) {
 			for (int j = 0; j < x; j++) {
 				countArroundMineNum(i, j);
@@ -73,21 +118,21 @@ public class Manage {
 		}
 	}
 
-	private void printField() { // í•„ë“œ ì¶œë ¥
+	private void printField() { // ÇÊµå Ãâ·Â
 		System.out.println("-------------------------------------");
 		for (int i = 0; i < y; i++) {
 			for (int j = 0; j < x; j++) {
-				if (field[i][j].isMine() && field[i][j].getCellState() == 3) { // ì§€ë¢°ë¥¼ ì—´ë©´ ê·¸ ì¹¸ ì§€ë¢°ë¡œ í‘œì‹œ
-					System.out.print("| â–  ");
+				if (field[i][j].isMine() && field[i][j].getCellState() == 3) { // Áö·Ú¸¦ ¿­¸é ±× Ä­ Áö·Ú·Î Ç¥½Ã
+					System.out.print("| ¡á ");
 					continue;
 				}
-				if (field[i][j].getCellState() == 0) { // ì…€ ìƒíƒœì— ë”°ë¼ í‘œì‹œ
-					System.out.print("|   "); // ì•ˆ ì—° ì¹¸
+				if (field[i][j].getCellState() == 0) { // ¼¿ »óÅÂ¿¡ µû¶ó Ç¥½Ã
+					System.out.print("|   "); // ¾È ¿¬ Ä­
 				} else if (field[i][j].getCellState() == 1) {
-					System.out.print("| ? "); // ë¬¼ìŒí‘œ ë©”ëª¨
+					System.out.print("| ? "); // ¹°À½Ç¥ ¸Ş¸ğ
 				} else if (field[i][j].getCellState() == 2) {
-					System.out.print("| âˆš "); // ì§€ë¢° í‘œì‹œ
-				} else if (field[i][j].getCellState() == 3) { // ì¹¸ ì—´ê¸°
+					System.out.print("| ¡î "); // Áö·Ú Ç¥½Ã
+				} else if (field[i][j].getCellState() == 3) { // Ä­ ¿­±â
 					System.out.printf("| %d ", field[i][j].getArroundMineNum());
 				}
 
@@ -100,36 +145,36 @@ public class Manage {
 	
 	public void TestMineXY() {
 		
-		for (int i = 0; i < mineNum-1; i++) {
-			mineX[i]=i;
-			mineY[i]=i;
+		for (int i = 0; i < 9; i++) {
+			mineX[8]=i;
+			mineY[8]=i;
 		}
-		mineX[mineNum]=0;
-		mineY[mineNum]=1;
+		mineX[9]=0;
+		mineY[9]=1;
 		
 		//mineX {0, 1, 2, 3, 4, 5, 6, 7,  8, 0}
 		//mineY {0, 1, 2, 3, 4, 5, 6, 7,  8, 1}
 	}
 
 	public void manage() {
-//		setMineXY(); // ì§€ë¢° ìƒì„±
-		TestMineXY(); // í…ŒìŠ¤íŠ¸ì§€ë¢°
-		setMineinField(); // ì§€ë¢° ì‹¬ê¸°
-		setArroundMineNuminField(); // ê·¼ì²˜ì˜ ì§€ë¢° ìˆ«ì ì‹¬ê¸°
+//		setMineXY(); // Áö·Ú »ı¼º
+		TestMineXY(); // Å×½ºÆ®Áö·Ú
+		setMineinField(); // Áö·Ú ½É±â
+		setArroundMineNuminField(); // ±ÙÃ³ÀÇ Áö·Ú ¼ıÀÚ ½É±â
 
-		System.out.println("===============ì§€ë¢° ì°¾ê¸°===============");
-		System.out.println("===============ê²Œì„ ì‹œì‘===============");
+		System.out.println("===============Áö·Ú Ã£±â===============");
+		System.out.println("===============°ÔÀÓ ½ÃÀÛ===============");
 
-		while (true) { // ì•„ë˜ë¶€í„°ì˜ ë¡œì§ì´ ë°˜ë³µë¨
-			printField(); // í•„ë“œ ì¶œë ¥
+		while (true) { // ¾Æ·¡ºÎÅÍÀÇ ·ÎÁ÷ÀÌ ¹İº¹µÊ
+			printField(); // ÇÊµå Ãâ·Â
 			System.out.println();
-			System.out.println("1: ë©”ëª¨\n2: ì°¾ì€ ì§€ë¢° í‘œì‹œ\n3.ì¹¸ ì—´ê¸°");
+			System.out.println("1: ¸Ş¸ğ\n2: Ã£Àº Áö·Ú Ç¥½Ã\n3.Ä­ ¿­±â");
 			int select = sc.nextInt();
 			if (select > 3 || select < 1) {
-				System.out.println("ì˜ëª»ëœ ì…ë ¥");
+				System.out.println("Àß¸øµÈ ÀÔ·Â");
 				continue;
 			}
-			System.out.print("ì—´ê³ ì í•˜ëŠ” ì¹¸ ë²ˆí˜¸ ì…ë ¥(ì„¸ë¡œ / ê°€ë¡œ): "); // ì˜¤í”ˆì¹¸ ì…ë ¥ë°›ê¸°
+			System.out.print("¿­°íÀÚ ÇÏ´Â Ä­ ¹øÈ£ ÀÔ·Â(¼¼·Î / °¡·Î): "); // ¿ÀÇÂÄ­ ÀÔ·Â¹Ş±â
 			try {
 				int column = sc.nextInt() - 1;
 				int row = sc.nextInt() - 1;
@@ -142,7 +187,7 @@ public class Manage {
 					field[column][row].setCellState(3);
 				}
 
-				/////////////// ì§€ë¢° ë°Ÿì•˜ì„ ë•Œì˜ ë¡œì§//////////////////
+				/////////////// Áö·Ú ¹â¾ÒÀ» ¶§ÀÇ ·ÎÁ÷//////////////////
 				if (field[column][row].getCellState() == 3 && field[column][row].isMine()) {
 					System.out.println("!!BANG!!");
 					for (int i = 0; i < y; i++) {
@@ -155,7 +200,7 @@ public class Manage {
 					return;
 				}
 
-				////////////// 0ì¼ë•Œì˜ ë¡œì§///////////////////
+				////////////// 0ÀÏ¶§ÀÇ ·ÎÁ÷///////////////////
 
 				if (field[column][row].getCellState() == 3
 						&& field[column][row].getArroundMineNum() == 0) {
@@ -164,13 +209,13 @@ public class Manage {
 							try {
 								field[i+column][j+row].setCellState(3);
 							} catch (ArrayIndexOutOfBoundsException e) {
-								// try-catchë¡œ ë²”ìœ„ë¥¼ ë„˜ëŠ” ì¸ë±ìŠ¤ë¥¼ ì˜ˆì™¸ì²˜ë¦¬
+								// try-catch·Î ¹üÀ§¸¦ ³Ñ´Â ÀÎµ¦½º¸¦ ¿¹¿ÜÃ³¸®
 							}
 						}
 					}
 				}
 
-				///////////////////// ìŠ¹ë¦¬ ë¡œì§////////////////////////
+				///////////////////// ½Â¸® ·ÎÁ÷////////////////////////
 				int resultCount = 0;
 				for (int i = 0; i < mineNum; i++) {
 					if (field[mineY[i]][mineX[i]].isMine() && field[mineY[i]][mineX[i]].getCellState() == 2)
@@ -180,13 +225,13 @@ public class Manage {
 					printField();
 					System.out.println("=====================================");
 					System.out.println("=====================================");
-					System.out.println("=================ìŠ¹ë¦¬!================");
+					System.out.println("=================½Â¸®!================");
 					System.out.println("=====================================");
 					System.out.println("=====================================");
 					return;
 				}
-			} catch (Exception e) { // ì…ë ¥ ì˜¤ë¥˜ ìºì¹˜
-				System.out.println("ì˜ëª»ëœ ì…ë ¥");
+			} catch (Exception e) { // ÀÔ·Â ¿À·ù Ä³Ä¡
+				System.out.println("Àß¸øµÈ ÀÔ·Â");
 			}
 		}
 	}
