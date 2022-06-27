@@ -8,15 +8,19 @@ public class Manage {
 	private int y = 9;
 	private Mine[][] field = new Mine[x][y];
 	// 가로 9, 세로 9, 지뢰 10개 (12.3%)
+
 	private int[] mineX = new int[mineNum];
 	private int[] mineY = new int[mineNum];
 	// 지뢰의 x, y 좌표
-	
-	////////////////////////////////////////////////
+
+	public Manage() { // 생성자로 실행
+		manage();
+	}
+
 	private void setMineXY() { // 지뢰 10개 생성
 		for (int i = 0; i < mineNum; i++) {
-			mineX[i] = (random.nextInt(x));
-			mineY[i] = (random.nextInt(y));
+			mineX[i] = (random.nextInt(9));
+			mineY[i] = (random.nextInt(9));
 			for (int j = 0; j < i; j++) { // 중복방지
 				if (mineX[i] == mineX[j] && mineY[i] == mineY[j]) {
 					i--;
@@ -49,7 +53,7 @@ public class Manage {
 		}
 	}
 
-	void setMineinField() { // 필드에 지뢰 심기
+	private void setMineinField() { // 필드에 지뢰 심기
 		reset();
 		for (int i = 0; i < y; i++) {
 			for (int j = 0; j < x; j++) {
@@ -61,7 +65,7 @@ public class Manage {
 		}
 	}
 
-	void setArroundMineNuminField() { // 필드에 주변 지뢰 숫자 심기
+	private void setArroundMineNuminField() { // 필드에 주변 지뢰 숫자 심기
 		for (int i = 0; i < y; i++) {
 			for (int j = 0; j < x; j++) {
 				countArroundMineNum(i, j);
@@ -97,8 +101,8 @@ public class Manage {
 	public void TestMineXY() {
 		
 		for (int i = 0; i < 9; i++) {
-			mineX[8]=i;
-			mineY[8]=i;
+			mineX[i]=i;
+			mineY[i]=i;
 		}
 		mineX[9]=0;
 		mineY[9]=1;
@@ -186,4 +190,5 @@ public class Manage {
 			}
 		}
 	}
+
 }

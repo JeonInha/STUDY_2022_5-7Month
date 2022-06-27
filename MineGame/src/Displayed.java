@@ -1,5 +1,6 @@
 import java.awt.*;
 import java.awt.event.*;
+import java.net.URL;
 import java.util.*;
 import java.util.Map.Entry;
 
@@ -16,6 +17,8 @@ public class Displayed extends JFrame {
 	private int[] mineY = new int[mineNum];
 	// 지뢰의 x, y 좌표
 
+	////////////////////////////////////////////////
+	////// 나만의 기능을 가진 버튼을 만들자........//////////
 	////////////////////////////////////////////////
 
 	private void setMineXY() { // 지뢰 10개 생성
@@ -75,7 +78,6 @@ public class Displayed extends JFrame {
 	}
 
 	private void TestMineXY() {
-
 		for (int i = 0; i < 9; i++) {
 			mineX[8] = i;
 			mineY[8] = i;
@@ -88,28 +90,17 @@ public class Displayed extends JFrame {
 	}
 
 	private String cellStateToBLabel(Mine a) {
-		if (a.getCellState() == 0)
+		if (a.getCellState() == Mine.CELL_NONOPEN)
 			return " ";
-		else if (a.getCellState() == 1)
+		else if (a.getCellState() == Mine.CELL_MEMO)
 			return "?";
-		else if (a.getCellState() == 2)
+		else if (a.getCellState() == Mine.CELL_CHECK)
 			return "√";
-		else if (a.getCellState() == 3)
+		else if (a.getCellState() == Mine.CELL_OPEN)
 			return Integer.toString(a.getArroundMineNum());
 		else
 			return null;
-
 	}
-
-//				if (field[i][j].getCellState() == 0) { // 셀 상태에 따라 표시
-//					System.out.print("|   "); // 안 연 칸
-//				} else if (field[i][j].getCellState() == 1) {
-//					System.out.print("| ? "); // 물음표 메모
-//				} else if (field[i][j].getCellState() == 2) {
-//					System.out.print("| √ "); // 지뢰 표시
-//				} else if (field[i][j].getCellState() == 3) { // 칸 열기
-//					System.out.printf("| %d ", field[i][j].getArroundMineNum());
-//				}
 
 	Displayed() {
 
@@ -120,64 +111,73 @@ public class Displayed extends JFrame {
 
 		JPanel pnl = new JPanel(); // 전체 상자
 		JPanel fieldBtns = new JPanel(); // 지뢰 필드
-		JPanel top = new JPanel(); // top 상자: 나중에 추가
+		JPanel top = new JPanel(); // top 상자
 		BoxLayout pnlBox = new BoxLayout(pnl, BoxLayout.Y_AXIS); // top이랑 지뢰필드 세로로 쌓기
+		BoxLayout topBox = new BoxLayout(top, BoxLayout.Y_AXIS);
 
-		//////////////////////////
 		pnl.setLayout(pnlBox);
+		top.setLayout(topBox);
 
 		pnl.add(top);
 		pnl.add(fieldBtns);
 
 		add(pnl);
+
+		////////////////////////
+		Toolkit kit = Toolkit.getDefaultToolkit();
+
+		URL winUrl = Displayed.class.getClassLoader().getResource("img/win.png");
+		URL loseUrl = Displayed.class.getClassLoader().getResource("img/lose.png");
+		URL playingUrl = Displayed.class.getClassLoader().getResource("img/playing.png");
+		URL bombUrl = Displayed.class.getClassLoader().getResource("img/bomb.png");
+		ImageIcon win = new ImageIcon(kit.getImage(winUrl));
+		ImageIcon lose = new ImageIcon(kit.getImage(loseUrl));
+		ImageIcon playing = new ImageIcon(kit.getImage(playingUrl));
+		ImageIcon bomb = new ImageIcon(kit.getImage(bombUrl));
+
 		////////////////////////
 		// top 파트
-		JRadioButton open = new JRadioButton("칸 열기");
-		JRadioButton check = new JRadioButton("지뢰 체크");
-		JRadioButton memo = new JRadioButton("메모(? 표시)");
-		ButtonGroup stateBtn = new ButtonGroup();
-		JLabel winlose = new JLabel("지뢰찾기 게임 시작");
+		JLabel explainRole1 = new JLabel("클릭: 칸 열기");
+		JLabel explainRole2 = new JLabel("우클릭: 지뢰 체크");
+		JLabel explainRole3 = new JLabel("우클릭 여러번: 물음표(메모)");
+		JLabel explainRole4 = new JLabel("모든 지뢰를 \"체크\"하면 승리");
+		JLabel winlose = new JLabel(playing);
 
-		stateBtn.add(open);
-		stateBtn.add(check);
-		stateBtn.add(memo);
-
-		top.add(open);
-		top.add(check);
-		top.add(memo);
+		top.add(explainRole1);
+		top.add(explainRole2);
+		top.add(explainRole3);
 		top.add(winlose);
-
-		open.setSelected(true); // open 버튼 미리 눌러져있도록
 
 		// 지뢰와 버튼을 연결한 맵 제작
 		Map<Mine, JButton> mineBtn = new HashMap<Mine, JButton>();
 
 		///////////////////////// 지뢰 버튼 액션
-		ActionListener mineBtnAct = new ActionListener() {
+		MouseListener mineBtnAct = new MouseAdapter() {
 
 			@Override
-			public void actionPerformed(ActionEvent e) {
-
+			public void mouseClicked(MouseEvent e) {
 				JButton btn = (JButton) e.getSource();
 
 				for (Entry<Mine, JButton> entry : mineBtn.entrySet()) { // 엔트리 사용해서 전체를 관리
 					if (entry.getValue().equals(e.getSource())) {
 						Mine mine = entry.getKey();
 
-						if (open.isSelected()) {// 지뢰칸의 셀 상황 먼저 변화시키고 (라디오버튼으로 if문 쓰기)
-							mine.setCellState(3);
+						if (SwingUtilities.isRightMouseButton(e) && e.getClickCount() == 1) {
+							// 한번 우클릭
+							mine.setCellState(Mine.CELL_CHECK);
+
+						} else if (SwingUtilities.isRightMouseButton(e) && e.getClickCount() >= 2) {
+							// 두번 우클릭
+							mine.setCellState(Mine.CELL_MEMO);
+						} else if (SwingUtilities.isLeftMouseButton(e)) {// 지뢰칸의 셀 상황 먼저 변화시키고
+							// 지뢰칸 클릭
+							mine.setCellState(Mine.CELL_OPEN);
 							btn.setEnabled(false); // 선택된 버튼 비활성화
-						} else if (check.isSelected()) {
-							mine.setCellState(2);
-						} else if (memo.isSelected()) {
-							mine.setCellState(1);
 						}
 
 						btn.setText(cellStateToBLabel(mine)); // 셀 상황 출력
-						winlose.setText("지뢰찾기 게임중");
-						
-						
-						
+						winlose.setIcon(playing);
+
 						// 0 밟았을 때 주위 여는 로직
 						if (mine.getCellState() == 3 && mine.getArroundMineNum() == 0) {
 
@@ -185,7 +185,7 @@ public class Displayed extends JFrame {
 							int ro = 0;
 							for (int i = 0; i < y; i++) {
 								for (int j = 0; j < x; j++) {
-									if (field[i][j].equals(mine)) {	// 좌표 추출
+									if (field[i][j].equals(mine)) { // 좌표 추출
 										co = i;
 										ro = j;
 										break;
@@ -196,7 +196,7 @@ public class Displayed extends JFrame {
 							for (int i = -1; i < 2; i++) {
 								for (int j = -1; j < 2; j++) {
 									try {
-										mineBtn.get(field[i + co][j + ro]).doClick();	// 자동 클릭해줌. 좀 느리긴한디
+										mineBtn.get(field[i + co][j + ro]).doClick(); // 자동 클릭해줌. 좀 느리긴한디
 									} catch (ArrayIndexOutOfBoundsException exception) {
 										// try-catch로 범위를 넘는 인덱스를 예외처리
 									}
@@ -205,25 +205,25 @@ public class Displayed extends JFrame {
 						}
 
 						///// 패배 로직
-						if (mine.isMine() && mine.getCellState() == 3) {
+						if (mine.isMine() && mine.getCellState() == Mine.CELL_OPEN) {
 							for (int i = 0; i < mineNum; i++) {
 								Mine minecell = field[mineY[i]][mineX[i]];
-								mineBtn.get(minecell).setText("★");
+								mineBtn.get(minecell).setIcon(bomb);
 								mineBtn.get(minecell).setEnabled(true);
 								mineBtn.get(minecell).setBackground(Color.red);
 
 							}
-							winlose.setText("패배 ㅠ ㅠ");
+							winlose.setIcon(lose);
 						}
 
 						///// 승리 로직
 						int resultCount = 0;
 						for (int i = 0; i < mineNum; i++) {
-							if (field[mineY[i]][mineX[i]].isMine() && field[mineY[i]][mineX[i]].getCellState() == 2)
+							if (field[mineY[i]][mineX[i]].isMine() && field[mineY[i]][mineX[i]].getCellState() == Mine.CELL_CHECK)
 								resultCount++;
 						}
 						if (resultCount == mineNum) {
-							winlose.setText("승리!!!!");
+							winlose.setIcon(win);
 						}
 					}
 				}
@@ -236,7 +236,7 @@ public class Displayed extends JFrame {
 			for (int j = 0; j < x; j++) {
 				mineBtn.put(field[i][j], new JButton());
 				fieldBtns.add(mineBtn.get(field[i][j]));
-				mineBtn.get(field[i][j]).addActionListener(mineBtnAct);
+				mineBtn.get(field[i][j]).addMouseListener(mineBtnAct);
 			}
 		}
 
@@ -245,6 +245,5 @@ public class Displayed extends JFrame {
 
 		setSize(500, 500);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
-
 	}
 }
