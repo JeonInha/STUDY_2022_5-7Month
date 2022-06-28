@@ -1,8 +1,8 @@
-import java.awt.event.*;
-import java.util.*;
+import java.awt.Color;
+
 import javax.swing.*;
 
-public class Login extends JFrame {
+public class Login extends JPanel {
 	JPanel pnl = new JPanel();
 
 	JPanel loginInputBox = new JPanel();
@@ -37,7 +37,7 @@ public class Login extends JFrame {
 
 	public JPanel LoginSwing() {
 		
-		////////////////////////////////////
+		////////////////////////좌측 입력부
 		loginInputBox.setLayout(loginInputLayout);
 		loginButtonBox.setLayout(loginButtonLayout);
 		
@@ -49,7 +49,7 @@ public class Login extends JFrame {
 		loginInputBox.add(pwBox);
 		pnl.add(loginInputBox);
 
-		//////////////////////////////////////////
+		////////////////////////우측 버튼부
 
 		loginButtonBox.add(loginBtn);
 		loginButtonBox.add(joinBtn);
@@ -58,8 +58,6 @@ public class Login extends JFrame {
 
 		////////////////////////////////////////////
 
-
 		return pnl;
-		
 	}
 }

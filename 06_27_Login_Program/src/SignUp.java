@@ -15,6 +15,7 @@ public class SignUp extends JPanel {
 	
 	JButton SignUpBtn = new JButton("Sign Up");
 	JButton loginBtn = new JButton("back to login");
+	JPanel btnBox = new JPanel();
 	
 	BoxLayout box = new BoxLayout(pnl, BoxLayout.Y_AXIS);
 	
@@ -53,8 +54,9 @@ public class SignUp extends JPanel {
 		pnl.add(PWchecksysM);
 		pnl.add(pwCheck);
 		pnl.add(SignUpsysM);
-		pnl.add(SignUpBtn);
-		pnl.add(loginBtn);
+		btnBox.add(SignUpBtn);
+		btnBox.add(loginBtn);
+		pnl.add(btnBox);
 		
 		return pnl;
 	}

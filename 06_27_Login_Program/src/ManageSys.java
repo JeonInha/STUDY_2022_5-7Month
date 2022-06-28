@@ -7,12 +7,12 @@ import java.util.Map;
 import javax.swing.*;
 
 public class ManageSys extends JFrame {
-	Map<String, String> account = new HashMap<>();
+	Map<String, String> account = new HashMap<>();	// 
 	Login login = new Login();
 	SignUp signUp = new SignUp();
 	
 	public void putData() {
-		account.put("YoouBi", "yoo");
+		account.put("qwer", "qwer");
 	}
 
 	ManageSys() {
@@ -22,23 +22,28 @@ public class ManageSys extends JFrame {
 		JPanel center = new JPanel(layout);
 		// 카드보드 레이아웃을 가진 패널 생성
 
-		JPanel log = login.LoginSwing();
-		JPanel su = signUp.SignUpSwing();
+		JPanel log = login.LoginSwing();	// 로그인 패널
+		JPanel su = signUp.SignUpSwing();	// 가입 패널
 
 		center.add(log);
 		center.add(su);
 
 		add(center);
 
-		////////////////////////////////////////
-
+		/// next로 카드레이아웃 순환하는 액션리스너
 		ActionListener nextAct = new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				layout.next(center);
+				if (getTitle().equals("login")) {
+					setTitle("sign up");
+				} else {
+					setTitle("login");
+				}
 			}
 		};
 
-		ActionListener signUpAct = new ActionListener() {
+		// 가입 액션리스너
+		ActionListener signUpAct = new ActionListener() {	
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (account.containsKey(signUp.getIdInput().getText())) {
@@ -52,7 +57,8 @@ public class ManageSys extends JFrame {
 			}
 		};
 
-		ActionListener loginAct = new ActionListener() {
+		// 가입 액션리스너
+		ActionListener loginAct = new ActionListener() {	// 로그인 액션리스너
 			@Override
 			public void actionPerformed(ActionEvent e) {
 
@@ -64,6 +70,8 @@ public class ManageSys extends JFrame {
 					JOptionPane.showMessageDialog(login.getLoginBtn(), "아이디 혹은 패스워드를 잘못 입력하였습니다.", "login fail",
 							JOptionPane.ERROR_MESSAGE);
 				}
+				login.getIdInput().setText("");
+				login.getPwInput().setText("");
 			}
 		};
 
@@ -72,6 +80,7 @@ public class ManageSys extends JFrame {
 		signUp.getLoginBtn().addActionListener(nextAct);
 		signUp.getSignUpBtn().addActionListener(signUpAct);
 
+		setTitle("login");
 		pack();
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 	}
