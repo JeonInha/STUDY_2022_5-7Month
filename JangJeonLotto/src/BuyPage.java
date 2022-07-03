@@ -10,6 +10,7 @@ public class BuyPage extends JFrame {
 	static final int HALF_RANDOM = 1;
 	static final int NON_RANDOM = 0;
 
+/// 폰으론 못해먹겠네 . ,.....
 	////////////////////////
 	Random random = new Random(); // 자동 반자동 할 때 쓰는 랜덤 객체
 	int numcount = 0; // 숫자 세는 변수: 6개만 써야 하는걸로
@@ -392,6 +393,6 @@ public class BuyPage extends JFrame {
 	}
 
 	public static void main(String[] args) {
-		new BuyPage().setVisible(true);
+
 	}
 }
