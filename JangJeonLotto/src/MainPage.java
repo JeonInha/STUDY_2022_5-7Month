@@ -23,6 +23,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -34,7 +35,7 @@ import java.awt.Dimension;
 import java.awt.Event;
 import java.awt.Graphics;
 
-class login {
+class login { // 개인정보
 	private String id;
 	private String pw;
 	private String name;
@@ -100,16 +101,82 @@ class login {
 	}
 }
 
+class MoneyChargeWindow extends JDialog { // 충전 페이지
+	MainPage mp = new MainPage();
+	HashMap me = mp.getMap();
+	int reserveInput = 0;
+	
+	private JTextField reserveCharge;
+	private JLabel reserveNotification = new JLabel("충전금 최소 금액은 천원이며, 천원 단위로만 충전이 가능합니다.");
+
+	public MoneyChargeWindow(JFrame owner) {
+		add(reserveNotification);
+		
+		reserveCharge = new JTextField(10);
+		add(reserveCharge, "North");
+		
+		JButton chargeBtn = new JButton("충전");
+		add(chargeBtn);
+		
+		reserveCharge.addKeyListener(new KeyAdapter() { // 입력 텍스트 필드
+			@Override
+			public void keyTyped(KeyEvent e) {
+				char c = e.getKeyChar();
+				if(((c < '0') || (c > '9')) && (c != KeyEvent.VK_BACK_SPACE)) {
+					e.consume();
+				}
+			}
+		});
+		
+		chargeBtn.addActionListener(new ActionListener() { //충전 버튼
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				reserveInput = Integer.valueOf(getCharge());
+//// 				맵 가져온거에서 로그인 되어있는 정보만 바꾸기...
+				
+				System.out.println(mp.getId().getText());
+				int back = (((login) me.get(mp.getId().getText())).getBankReserve()); // 개인 은행잔고
+				int BankDifference = back - reserveInput; // 은행 잔고에서 충전금 빼기
+				((login) me.get(mp.getId().getText())).setBankReserve(BankDifference);
+				int ChargingReserve = ((login) me.get(mp.getId().getText())).getLottoReserve() + reserveInput;
+				((login) me.get(mp.getId().getText())).setLottoReserve(ChargingReserve);
+				
+				mp.setMap(me);
+				
+				dispose(); // setVisible(false) 랑 크게 다르지 않음
+			}
+		});
+		
+		setSize(300, 200);
+	}
+	
+	public void showDialog() {
+		setVisible(true);
+	}
+	
+	public String getCharge() {
+		return reserveCharge.getText();
+	}
+	
+}
+
 public class MainPage extends JFrame {
 	private JPanel Mainppp;
 	private JButton start;
-	private JLabel stringName;
+	
+	private int totalLotteWinnings = 300000000;
+	
+	private JLabel stringName; // 개인정보들
 	private HashMap<String, login> map;
 	private int inputYear;
 	private int inputMonth;
 	private int inputDay;
 	private int inputAge;
 	private int showMyBankMoney;
+	private int mylottoReserve = 0;
+	private JLabel mypageReserve;
+	
+	private JTextField id; // 로그인 필드
 
 	public JPanel getPnl() {
 		return Mainppp;
@@ -117,6 +184,46 @@ public class MainPage extends JFrame {
 
 	public JButton getStart() {
 		return start;
+	}
+	
+	public int getTotalLotteWinnings() {
+		return totalLotteWinnings;
+	}
+
+	public void setTotalLotteWinnings(int totalLotteWinnings) {
+		this.totalLotteWinnings = totalLotteWinnings;
+	}
+
+	public HashMap<String, login> getMap() {
+		return map;
+	}
+
+	public void setMap(HashMap<String, login> map) {
+		this.map = map;
+	}
+
+	public int getMylottoReserve() {
+		return mylottoReserve;
+	}
+
+	public void setMylottoReserve(int mylottoReserve) {
+		this.mylottoReserve = mylottoReserve;
+	}
+	
+	public JLabel getMypageReserve() {
+		return mypageReserve;
+	}
+
+	public void setMypageReserve(JLabel mypageReserve) {
+		this.mypageReserve = mypageReserve;
+	}
+
+	public JTextField getId() {
+		return id;
+	}
+
+	public void setId(JTextField id) {
+		this.id = id;
 	}
 
 	public MainPage() {
@@ -139,16 +246,18 @@ public class MainPage extends JFrame {
 		map.put("Inha123", new login("Inha123", "Inha123", "전인하", 20020202, myBankMoney, 2000));
 		map.put("yeriming", new login("yeriming", "yeriming", "장예림", 20020303, myBankMoney, 3000));
 		
-		URL imageUrl = MainPage.class.getClassLoader().getResource("images/lotto.png");
+		URL imageUrl = MainPage.class.getClassLoader().getResource("images/Lotto-MainPage-Background.png");
+		ImageIcon icon = new ImageIcon(kit.getImage(imageUrl));
+		//.getScaledInstance(350, 350, Image.SCALE_SMOOTH)
 		
-		Mainppp = new JPanel(new BorderLayout());
-		JPanel MainAll = new JPanel() {
-//			public void paintComponent(Graphics g) {
-//				g.drawImage(backicon.getImage(), 0, 0, null);
-//				setOpaque(false);
-//				super.paintComponent(g);
-//			}
+		Mainppp = new JPanel(new BorderLayout()) {
+			 public void paintComponent(Graphics g) {
+				 g.drawImage(icon.getImage(), 0, 0, null);
+				 setOpaque(false); //그림을 표시하게 설정,투명하게 조절
+	             super.paintComponent(g);
+			 }
 		};
+		JPanel MainAll = new JPanel();
 		JPanel MainPnl1 = new JPanel();
 		JPanel MainPnl2 = new JPanel();
 		JPanel MainPnl3 = new JPanel();
@@ -176,7 +285,7 @@ public class MainPage extends JFrame {
 		MainPnl1.setPreferredSize(new Dimension(350, 350));
 		MainPnl4.setBounds(50, 150, 200, 200);
 
-		MainAll.setBackground(new Color(248, 202, 204));
+		MainAll.setOpaque(false);
 		MainPnl1.setOpaque(false);
 		MainPnl2.setOpaque(false);
 		MainPnl3.setOpaque(false);
@@ -195,8 +304,9 @@ public class MainPage extends JFrame {
 		CreatePageNamePnl.setOpaque(false);
 		CreatePageAgePnl.setOpaque(false);
 		CreatePageAccountAndReturn.setOpaque(false);
+		
+		MyPageReservePnl.setOpaque(false);
 
-//		BorderLayout border = new BorderLayout();
 		BoxLayout box = new BoxLayout(MainAll, BoxLayout.X_AXIS);
 		MainAll.setLayout(box);
 		BoxLayout box2 = new BoxLayout(MainPnl4, BoxLayout.Y_AXIS);
@@ -206,8 +316,7 @@ public class MainPage extends JFrame {
 		BoxLayout box4 = new BoxLayout(MainPnlCreatePage, BoxLayout.Y_AXIS);
 		MainPnlCreatePage.setLayout(box4);
 
-
-		JLabel lottoimg = new JLabel(new ImageIcon(kit.getImage(imageUrl).getScaledInstance(350, 350, Image.SCALE_SMOOTH)));
+		JLabel lottoTotalMoney = new JLabel("당첨금 " + totalLotteWinnings + "원!!!");
 		JLabel stringId = new JLabel("아이디 :");
 		JLabel stringPw = new JLabel("비밀번호 :");
 		stringName = new JLabel("");
@@ -224,7 +333,7 @@ public class MainPage extends JFrame {
 		JLabel createMonth = new JLabel("월 ");
 		JLabel createDay = new JLabel("일");
 		JLabel mypageBank = new JLabel("계좌 : " + myBankMoney);
-		JLabel mypageReserve = new JLabel("보유금 : ");
+		mypageReserve = new JLabel("보유금 : ");
 
 		JCheckBox PwSee = new JCheckBox("비밀번호 보기");
 		PwSee.setOpaque(false);
@@ -245,9 +354,9 @@ public class MainPage extends JFrame {
 		createAccount.setBackground(new Color(127, 153, 248));
 		JButton createReturn = new JButton("되돌아가기");
 		createReturn.setBackground(new Color(127, 153, 248));
-		JButton ReserveBtn = new JButton("충전");
+		JButton ChargeBtn = new JButton("충전");
 
-		JTextField id = new JTextField(10);
+		id = new JTextField(10);
 		id.setText("");
 		JPasswordField pw = new JPasswordField(10);
 		pw.setText("");
@@ -258,7 +367,7 @@ public class MainPage extends JFrame {
 		JTextField createInputYear = new JTextField(5);
 		JTextField createInputDay = new JTextField(3);
 
-		id.addKeyListener(new KeyAdapter() { // 로그인 아이디 텍스트 필드에서 엔터 쳐도 로그인
+		id.addKeyListener(new KeyAdapter() { // 로그인 아이디 텍스트 필드에서 엔터로 로그인
 			@Override
 			public void keyReleased(KeyEvent e) {
 				if (e.getKeyCode() == KeyEvent.VK_ENTER ) {
@@ -284,7 +393,9 @@ public class MainPage extends JFrame {
 						JOptionPane.showMessageDialog(MainPage.this, "로그인 되었습니다.");
 						stringName.setText((((login) map.get(id.getText())).getName()) + "님 환영합니다!");
 						showMyBankMoney = (((login) map.get(id.getText())).getBankReserve());
+						mylottoReserve = (((login) map.get(id.getText())).getLottoReserve());
 						mypageBank.setText("계좌 : " + showMyBankMoney);
+						mypageReserve.setText("보유금 : " + mylottoReserve);
 						cardLogIn.show(MainPnlLogIn, "MyPage");
 					} else {
 						JOptionPane.showMessageDialog(MainPage.this, "일치하는 회원정보가 없습니다!");
@@ -453,7 +564,10 @@ public class MainPage extends JFrame {
 					JOptionPane.showMessageDialog(MainPage.this, "청소년보호법 제2조 제1호 규정에 의거\n만 19세 이하는 로또를 구입할 수 없습니다.");
 				} else {
 					JOptionPane.showMessageDialog(MainPage.this, "회원가입 되었습니다.");
-					map.put(id, new login(id, pw, name, inputAge, myBankMoney, 5000)); // 보유금 수정!
+					map.put(id, new login(id, pw, name, inputAge, myBankMoney, mylottoReserve)); // 보유금 수정!
+					createInputYear.setText("");
+					createInputDay.setText("");
+					monthComboBox.setSelectedIndex(0);
 					cardLogIn.show(MainPnlLogIn, "LogIn");
 				}
 			}
@@ -472,10 +586,11 @@ public class MainPage extends JFrame {
 			}
 		});
 		
-		ReserveBtn.addActionListener(new ActionListener() {	// 보유금 충전 버튼
+		ChargeBtn.addActionListener(new ActionListener() {	// 보유금 충전 버튼
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				
+				MoneyChargeWindow dialog = new MoneyChargeWindow(MainPage.this);
+				dialog.showDialog();
 			}
 		});
 
@@ -483,7 +598,7 @@ public class MainPage extends JFrame {
 		
 		MainAll.add(MainPnl1);
 		MainAll.add(MainPnlLogIn);
-		MainPnl1.add(lottoimg);
+		MainPnl1.add(lottoTotalMoney);
 
 		MainPnlLogIn.add(MainPnlLogInPage, "LogIn");
 		MainPnlLogIn.add(MainPnlMyPage, "MyPage");
@@ -507,7 +622,7 @@ public class MainPage extends JFrame {
 		MyPagePnl.add(signout);
 		MyPagePnl.add(start);
 		MyPageReservePnl.add(mypageReserve);
-		MyPageReservePnl.add(ReserveBtn);
+		MyPageReservePnl.add(ChargeBtn);
 		
 		MainPnlCreatePage.add(CreatePageIdPnl);
 		MainPnlCreatePage.add(createIdCheck);
@@ -541,7 +656,7 @@ public class MainPage extends JFrame {
 		cardLogIn.show(MainPnlLogIn, "LogIn");
 
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
-		setSize(800, 500);
+		setSize(900, 600);
 	}
 
 	public static void main(String[] args) {
