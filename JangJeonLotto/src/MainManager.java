@@ -2,6 +2,9 @@ import java.awt.CardLayout;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -16,16 +19,16 @@ public class MainManager extends JFrame {
 	List<List<Integer>> buyLotto = new ArrayList<>();
 
 	MainPage mainPage = new MainPage();
-	BuyPage lottoBuy = new BuyPage();
-	ResultPage results = new ResultPage();
+	BuyPage buyPage = new BuyPage();
+	ResultPage resultPage = new ResultPage();
 
 	JPanel mp = mainPage.getPnl();
-	JPanel lb = lottoBuy.getPnl();
+	JPanel lb = buyPage.getPnl();
 
-	JButton btn1 = mainPage.getStart(); // 여기버튼이거맞아??
-	JButton btn2 = lottoBuy.getNextBtn();
-	JButton logoutBtn = lottoBuy.getLogout();
-	JButton myPageBtn = lottoBuy.getMypage();
+	JButton btn1 = mainPage.getNextBtn(); // 여기버튼이거맞아??
+	JButton btn2 = buyPage.getNextBtn();
+	JButton logoutBtn = buyPage.getLogout();
+	JButton myPageBtn = buyPage.getMypage();
 
 	CardLayout layout = new CardLayout();
 	JPanel center = new JPanel(layout);
@@ -49,34 +52,34 @@ public class MainManager extends JFrame {
 		ActionListener letsGoBuy = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				lottoBuy.hardReset();
+				buyPage.hardReset();
 				layout.next(center);
 			}
 		};
 
 		ActionListener letsGoResult = new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				buyLotto = lottoBuy.getBuyLotto();
+				buyLotto = buyPage.getBuyLotto();
 
-				if (lottoBuy.getLottoNumCount() == 0) {
+				if (buyPage.getLottoNumCount() == 0) {
 					JOptionPane.showMessageDialog(null, "로또를 구매하지 않고 결과페이지로 넘어갈 수 없습니다.");
 				} else {
 
 					int result = JOptionPane
 							.showConfirmDialog(null,
-									String.format("복권 수량: %d개\n가격: %d원\n구매 확정하시겠습니까?", lottoBuy.getLottoNumCount(),
-											lottoBuy.getLottoNumCount() * 1000),
+									String.format("복권 수량: %d개\n가격: %d원\n구매 확정하시겠습니까?", buyPage.getLottoNumCount(),
+											buyPage.getLottoNumCount() * 1000),
 									"로또 값 확인", JOptionPane.OK_CANCEL_OPTION);
 
 					if (result == JOptionPane.OK_OPTION) {
-						int accountMoney = mainPage.getMylottoReserve();
+						int accountMoney = ((login) mainPage.getMap().get(mainPage.getId().getText())).getLottoReserve();
 						
-						if (accountMoney<lottoBuy.getLottoNumCount() * 1000) {	// 보유금 처리
-						JOptionPane.showMessageDialog(null, "보유금이 부족하여 로또를 구매할 수 없습니다.");
+						if (accountMoney<buyPage.getLottoNumCount() * 1000) {	// 보유금 처리
+							JOptionPane.showMessageDialog(null, "보유금이 부족하여 로또를 구매할 수 없습니다.");
 						} else {
-						int remainingReserve = accountMoney-(lottoBuy.getLottoNumCount() * 1000);
-						mainPage.setMylottoReserve(remainingReserve);
-						(mainPage.getMypageReserve()).setText("보유금 : " + remainingReserve); // 라벨의 텍스트
+							int remainingReserve = accountMoney-(buyPage.getLottoNumCount() * 1000);
+							((login) mainPage.getMap().get(mainPage.getId().getText())).setLottoReserve(remainingReserve);
+							(mainPage.getMypageReserve()).setText("보유금 : " + remainingReserve); // 라벨의 텍스트
 					
 						// 이후는 배열 넘겨주고 넘겨받는 부분
 						// Iterator로 배열 정리
@@ -88,16 +91,39 @@ public class MainManager extends JFrame {
 						}
 
 						// 이부분에 넘겨받고 계산하는 작업이 들어감
-						results.setBuyLottoNumList(buyLotto);
-						System.out.println("제발 들어가라 = " + results.getBuyLottoNumList());
-						results.getLottoNum();
-
-						results.setPanel();
-
-						JPanel re = results.getPnl();
-						JButton btn3 = results.getNextBtn();
+						resultPage.setBuyLottoNumList(buyLotto);
+						resultPage.setTotalMoney(mainPage.getTotalLotteWinnings());
+//						KeyListener clickOne = new KeyAdapter() {
+//							@Override
+//							public void keyPressed(KeyEvent e) {
+//								
+//							}
+//						};
+						resultPage.getLottoNum();
+//						re.addKey
+						System.out.println(resultPage.getTotalMoney());
+						mainPage.setTotalLotteWinnings(resultPage.getTotalMoney());
+						mainPage.setTotalLotteWinnings(resultPage.getTotalMoney());
+						mainPage.getLottoTotalMoney().setText("당첨금 " + resultPage.getTotalMoney() + "원!!!");
+						
+						String idStr = mainPage.getId().getText();
+						if(mainPage.getId().getText().equals("nonmember")) {
+							((login) mainPage.getMap().get(mainPage.getId().getText())).setLottoReserve(5000);
+							mainPage.setId("");
+						}
+						
+						JPanel re = resultPage.getPnl();
+				
+						JButton btn3 = resultPage.getNextBtn();
 						btn3.addActionListener(nextBtn);
+						System.out.println("여기선 몇 개?" + center.getComponentCount());
+						if(center.getComponentCount() == 3) {
+							center.remove(2);
+							System.out.println("요기는?" + center.getComponentCount());
+						}
 						center.add(re, "C");
+						System.out.println("카드레이아웃 몇개?" + center.getComponentCount());
+						
 						layout.next(center);
 						}
 					}
@@ -106,11 +132,14 @@ public class MainManager extends JFrame {
 			}
 		};
 		
-		ActionListener letsLogout = new ActionListener() {
+		ActionListener letsLogout = new ActionListener() { // 구입페이지 로그아웃 구현
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				if(mainPage.getId().getText().equals("nonmember")) {
+					mainPage.setId("");
+				}
 				layout.previous(center);
-				// TODO 로그아웃 메소드 이거영빈언니에게부탁해...
+				mainPage.getSignout().doClick();
 			}
 		};
 		

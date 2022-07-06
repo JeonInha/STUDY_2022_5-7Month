@@ -102,14 +102,14 @@ class login { // 개인정보
 }
 
 class MoneyChargeWindow extends JDialog { // 충전 페이지
-	MainPage mp = new MainPage();
-	HashMap me = mp.getMap();
-	int reserveInput = 0;
+	MainPage mainpage;
 	
 	private JTextField reserveCharge;
 	private JLabel reserveNotification = new JLabel("충전금 최소 금액은 천원이며, 천원 단위로만 충전이 가능합니다.");
 
-	public MoneyChargeWindow(JFrame owner) {
+	public MoneyChargeWindow(MainPage mainpage) {
+		this.mainpage = mainpage;
+		
 		add(reserveNotification);
 		
 		reserveCharge = new JTextField(10);
@@ -131,19 +131,23 @@ class MoneyChargeWindow extends JDialog { // 충전 페이지
 		chargeBtn.addActionListener(new ActionListener() { //충전 버튼
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				reserveInput = Integer.valueOf(getCharge());
+				int reserveInput = Integer.valueOf(getCharge()); // 충전금
 //// 				맵 가져온거에서 로그인 되어있는 정보만 바꾸기...
+				int bankInt = ((login) mainpage.getMap().get(mainpage.getId().getText())).getBankReserve() - reserveInput;
+				int reserveInt = ((login) mainpage.getMap().get(mainpage.getId().getText())).getLottoReserve() + reserveInput;
 				
-				System.out.println(mp.getId().getText());
-				int back = (((login) me.get(mp.getId().getText())).getBankReserve()); // 개인 은행잔고
-				int BankDifference = back - reserveInput; // 은행 잔고에서 충전금 빼기
-				((login) me.get(mp.getId().getText())).setBankReserve(BankDifference);
-				int ChargingReserve = ((login) me.get(mp.getId().getText())).getLottoReserve() + reserveInput;
-				((login) me.get(mp.getId().getText())).setLottoReserve(ChargingReserve);
+				if(bankInt - reserveInput >= 0) {
+					((login) mainpage.getMap().get(mainpage.getId().getText())).setBankReserve(bankInt); // 은행 잔고에서 충전금 빼기
+					((login) mainpage.getMap().get(mainpage.getId().getText())).setLottoReserve(reserveInt); // 보유금 충전
 				
-				mp.setMap(me);
-				
-				dispose(); // setVisible(false) 랑 크게 다르지 않음
+					mainpage.getMypageBank().setText("계좌 : " + bankInt);
+					mainpage.getMypageReserve().setText("보유금 : " + reserveInt);
+					mainpage.setMylottoReserve(mainpage.getMylottoReserve() - reserveInput);
+					
+					dispose();
+				} else {
+					JOptionPane.showMessageDialog(MoneyChargeWindow.this, "계좌의 잔액이 부족합니다.");
+				}
 			}
 		});
 		
@@ -162,7 +166,7 @@ class MoneyChargeWindow extends JDialog { // 충전 페이지
 
 public class MainPage extends JFrame {
 	private JPanel Mainppp;
-	private JButton start;
+	private JButton nextBtn;
 	
 	private int totalLotteWinnings = 300000000;
 	
@@ -173,17 +177,20 @@ public class MainPage extends JFrame {
 	private int inputDay;
 	private int inputAge;
 	private int showMyBankMoney;
-	private int mylottoReserve = 0;
-	private JLabel mypageReserve;
+	private int mylottoReserve = 0; // 현재 내 보유금
 	
-	private JTextField id; // 로그인 필드
+	private JTextField id = new JTextField(10); // 로그인 필드
+	private int ranMyNum;
+	private JLabel mypageBank;
+	private JLabel mypageReserve;
+	private JLabel lottoTotalMoney;
+	private JButton signout;
 
 	public JPanel getPnl() {
 		return Mainppp;
 	}
-
-	public JButton getStart() {
-		return start;
+	public JButton getNextBtn() {
+		return nextBtn;
 	}
 	
 	public int getTotalLotteWinnings() {
@@ -193,13 +200,30 @@ public class MainPage extends JFrame {
 	public void setTotalLotteWinnings(int totalLotteWinnings) {
 		this.totalLotteWinnings = totalLotteWinnings;
 	}
-
+	
+	public JButton getSignout() {
+		return signout;
+	}
+	public JLabel getLottoTotalMoney() {
+		return lottoTotalMoney;
+	}
+	public void setLottoTotalMoney(JLabel lottoTotalMoney) {
+		this.lottoTotalMoney = lottoTotalMoney;
+	}
 	public HashMap<String, login> getMap() {
 		return map;
 	}
 
 	public void setMap(HashMap<String, login> map) {
 		this.map = map;
+	}
+
+	public int getShowMyBankMoney() {
+		return showMyBankMoney;
+	}
+
+	public void setShowMyBankMoney(int showMyBankMoney) {
+		this.showMyBankMoney = showMyBankMoney;
 	}
 
 	public int getMylottoReserve() {
@@ -210,20 +234,20 @@ public class MainPage extends JFrame {
 		this.mylottoReserve = mylottoReserve;
 	}
 	
-	public JLabel getMypageReserve() {
-		return mypageReserve;
+	public JLabel getMypageBank() {
+		return mypageBank;
 	}
 
-	public void setMypageReserve(JLabel mypageReserve) {
-		this.mypageReserve = mypageReserve;
+	public JLabel getMypageReserve() {
+		return mypageReserve;
 	}
 
 	public JTextField getId() {
 		return id;
 	}
 
-	public void setId(JTextField id) {
-		this.id = id;
+	public void setId(String idStr) {
+		id.setText(idStr);
 	}
 
 	public MainPage() {
@@ -238,17 +262,19 @@ public class MainPage extends JFrame {
 		inputMonth = 0;
 		inputDay = 0;
 		inputAge = 20220630;
-		int myBankMoney = (randomInt.nextInt(10) + 1) * (randomInt.nextInt(10) + 1) * 1000;
+		ranMyNum = randomInt.nextInt(99999) + 1;
+		int myBankMoney;
 		int myReserve = 0;
 		showMyBankMoney = 0;
 		
-		map.put("YoouBi", new login("YoouBi", "yoyobiii", "장영빈", 20020101, myBankMoney, 1000));
-		map.put("Inha123", new login("Inha123", "Inha123", "전인하", 20020202, myBankMoney, 2000));
-		map.put("yeriming", new login("yeriming", "yeriming", "장예림", 20020303, myBankMoney, 3000));
+		map.put("YoouBi", new login("YoouBi", "yoyobiii", "장영빈", 20020101, randomInt.nextInt(999) * 1000, 10000));
+		map.put("Inha123", new login("Inha123", "Inha123", "전인하", 20020202, randomInt.nextInt(999) * 1000, 20000));
+		map.put("yeriming", new login("yeriming", "yeriming", "장예림", 20020303, randomInt.nextInt(999) * 1000, 30000));
+		map.put("nonmember", new login("nonmember", "nonmember", "비회원", 20020404, 5000, 5000)); // 비회원용 계정
 		
 		URL imageUrl = MainPage.class.getClassLoader().getResource("images/Lotto-MainPage-Background.png");
-		ImageIcon icon = new ImageIcon(kit.getImage(imageUrl));
-		//.getScaledInstance(350, 350, Image.SCALE_SMOOTH)
+		ImageIcon icon = new ImageIcon(kit.getImage(imageUrl).getScaledInstance(885, 565, Image.SCALE_SMOOTH));
+//		.getScaledInstance(350, 350, Image.SCALE_SMOOTH);
 		
 		Mainppp = new JPanel(new BorderLayout()) {
 			 public void paintComponent(Graphics g) {
@@ -258,7 +284,7 @@ public class MainPage extends JFrame {
 			 }
 		};
 		JPanel MainAll = new JPanel();
-		JPanel MainPnl1 = new JPanel();
+		JPanel MainPnl1 = new JPanel(); // 왼쪽 메인 이미지...가 아닌가?
 		JPanel MainPnl2 = new JPanel();
 		JPanel MainPnl3 = new JPanel();
 		JPanel MainPnl4 = new JPanel();
@@ -282,9 +308,8 @@ public class MainPage extends JFrame {
 		JPanel MyPageReservePnl = new JPanel();
 		JPanel MyPagePnl = new JPanel();
 		
-		MainPnl1.setPreferredSize(new Dimension(350, 350));
-		MainPnl4.setBounds(50, 150, 200, 200);
-
+		MainPnl1.setPreferredSize(new Dimension(600, 350));
+		
 		MainAll.setOpaque(false);
 		MainPnl1.setOpaque(false);
 		MainPnl2.setOpaque(false);
@@ -315,8 +340,8 @@ public class MainPage extends JFrame {
 		MyPagePnl.setLayout(box3);
 		BoxLayout box4 = new BoxLayout(MainPnlCreatePage, BoxLayout.Y_AXIS);
 		MainPnlCreatePage.setLayout(box4);
-
-		JLabel lottoTotalMoney = new JLabel("당첨금 " + totalLotteWinnings + "원!!!");
+		
+		lottoTotalMoney = new JLabel("당첨금 " + totalLotteWinnings + "원!!!");
 		JLabel stringId = new JLabel("아이디 :");
 		JLabel stringPw = new JLabel("비밀번호 :");
 		stringName = new JLabel("");
@@ -332,8 +357,8 @@ public class MainPage extends JFrame {
 		JLabel createYear = new JLabel("년 ");
 		JLabel createMonth = new JLabel("월 ");
 		JLabel createDay = new JLabel("일");
-		JLabel mypageBank = new JLabel("계좌 : " + myBankMoney);
 		mypageReserve = new JLabel("보유금 : ");
+		mypageBank = new JLabel("계좌 : ");
 
 		JCheckBox PwSee = new JCheckBox("비밀번호 보기");
 		PwSee.setOpaque(false);
@@ -342,21 +367,17 @@ public class MainPage extends JFrame {
 		JComboBox monthComboBox = new JComboBox<>(monthCombo);
 		monthComboBox.setPreferredSize(new Dimension(50, 20));
 		
-		JButton signIn = new JButton("로그인");
-		signIn.setBackground(new Color(255, 255, 255));
-		JButton create = new JButton("회원가입");
-		create.setBackground(new Color(255, 255, 255));
-		JButton signout = new JButton("로그아웃");
-		signout.setBackground(new Color(255, 255, 255));
-		start = new JButton("로또 구매");
-		start.setBackground(new Color(127, 153, 248));
-		JButton createAccount = new JButton("회원가입");
-		createAccount.setBackground(new Color(127, 153, 248));
-		JButton createReturn = new JButton("되돌아가기");
-		createReturn.setBackground(new Color(127, 153, 248));
-		JButton ChargeBtn = new JButton("충전");
+		JButton signIn = new MyButton("로그인");
+		JButton create = new MyButton("회원가입");
+		JButton nonMembers = new MyButton("비회원 구입");
+		signout = new MyEmphasizeButton("로그아웃");
+		nextBtn = new MyButton("로또 구매");
+		nextBtn.setBackground(new Color(127, 153, 248));
+		JButton createAccount = new MyButton("회원가입");
+		JButton createReturn = new MyEmphasizeButton("되돌아가기");
+		JButton chargeBtn = new MyButton("충전");
 
-		id = new JTextField(10);
+//		id = new JTextField(10);
 		id.setText("");
 		JPasswordField pw = new JPasswordField(10);
 		pw.setText("");
@@ -431,6 +452,25 @@ public class MainPage extends JFrame {
 				createInputPw.setText("");
 				createInputPwConfirm.setText("");
 				createInputName.setText("");
+			}
+		});
+		
+		nonMembers.addActionListener(new ActionListener() { // 비회원 구입
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				ranMyNum++;
+				JOptionPane.showMessageDialog(MainPage.this, "비회원 구입을 선택하셨습니다.\n"
+						+ "로또 당첨 시, 개인고유번호를 지참하셔야 당첨금을 받을 수 있습니다.\n\n"
+						+ "개인고유번호 : " + String.format("%06d", ranMyNum));
+				stringName.setText("비회원 페이지입니다!");
+				
+				id.setText("nonmember");
+				showMyBankMoney = (((login) map.get("nonmember")).getBankReserve());
+				mylottoReserve = (((login) map.get("nonmember")).getLottoReserve());
+				mypageBank.setText("계좌 : ∞");
+				mypageReserve.setText("보유금 : " + mylottoReserve);
+				
+				nextBtn.doClick();
 			}
 		});
 
@@ -551,7 +591,7 @@ public class MainPage extends JFrame {
 				} else if (!(id.matches(checkIdPw) && pw.matches(checkIdPw))) {
 					JOptionPane.showMessageDialog(MainPage.this, "아이디와 비밀번호에는 대소문자와 숫자만 입력 가능합니다.");
 				} else if (!name.matches(checkName)) {
-					JOptionPane.showMessageDialog(MainPage.this, "이름의 형식이 잘못되었습니다.");
+					JOptionPane.showMessageDialog(MainPage.this, "이름의 형식이 잘못되었습니다.\n한글로 입력해주세요.");
 				} else if (iplength) {
 					JOptionPane.showMessageDialog(MainPage.this, "아이디와 비밀번호의 길이는 4~12자 사이로 입력해야 합니다.");
 				} else if (!PwConfirm) {
@@ -564,6 +604,7 @@ public class MainPage extends JFrame {
 					JOptionPane.showMessageDialog(MainPage.this, "청소년보호법 제2조 제1호 규정에 의거\n만 19세 이하는 로또를 구입할 수 없습니다.");
 				} else {
 					JOptionPane.showMessageDialog(MainPage.this, "회원가입 되었습니다.");
+					int myBankMoney = randomInt.nextInt(999) * 1000 + randomInt.nextInt(999) * 10;
 					map.put(id, new login(id, pw, name, inputAge, myBankMoney, mylottoReserve)); // 보유금 수정!
 					createInputYear.setText("");
 					createInputDay.setText("");
@@ -586,7 +627,7 @@ public class MainPage extends JFrame {
 			}
 		});
 		
-		ChargeBtn.addActionListener(new ActionListener() {	// 보유금 충전 버튼
+		chargeBtn.addActionListener(new ActionListener() {	// 보유금 충전 버튼
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				MoneyChargeWindow dialog = new MoneyChargeWindow(MainPage.this);
@@ -598,31 +639,31 @@ public class MainPage extends JFrame {
 		
 		MainAll.add(MainPnl1);
 		MainAll.add(MainPnlLogIn);
-		MainPnl1.add(lottoTotalMoney);
 
 		MainPnlLogIn.add(MainPnlLogInPage, "LogIn");
 		MainPnlLogIn.add(MainPnlMyPage, "MyPage");
 		MainPnlLogIn.add(MainPnlCreatePage, "CreatePage");
 		
+		MainPnlLogInPage.add(MainPnl4);
+		MainPnl4.add(lottoTotalMoney);
+		MainPnl4.add(MainPnl2);
+		MainPnl4.add(MainPnl3);
+		MainPnl4.add(nonMembers);
 		MainPnl2.add(stringId);
 		MainPnl2.add(id);
 		MainPnl2.add(signIn);
 		MainPnl3.add(stringPw);
 		MainPnl3.add(pw);
 		MainPnl3.add(create);
-
-		MainPnlLogInPage.add(MainPnl4);
-		MainPnl4.add(MainPnl2);
-		MainPnl4.add(MainPnl3);
 		
 		MainPnlMyPage.add(MyPagePnl);
 		MyPagePnl.add(stringName);
 		MyPagePnl.add(mypageBank);
 		MyPagePnl.add(MyPageReservePnl);
 		MyPagePnl.add(signout);
-		MyPagePnl.add(start);
+		MyPagePnl.add(nextBtn);
 		MyPageReservePnl.add(mypageReserve);
-		MyPageReservePnl.add(ChargeBtn);
+		MyPageReservePnl.add(chargeBtn);
 		
 		MainPnlCreatePage.add(CreatePageIdPnl);
 		MainPnlCreatePage.add(createIdCheck);

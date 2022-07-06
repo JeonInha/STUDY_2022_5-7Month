@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
+import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
-import javax.swing.GrayFilter;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -15,10 +15,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JSplitPane;
 import javax.swing.ToolTipManager;
-
-import com.oracle.xmlns.internal.webservices.jaxws_databinding.ExistingAnnotationsType;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -41,8 +38,6 @@ public class ResultPage {
 	// 1. 돌아갈 때 사용자 구입 로또 배열과 당첨번호 리셋
 	// 2. 같으면 번호 색 변경 메소드 만들기
 
-	BuyPage lottoBuy = new BuyPage();
-
 	// Random 인스턴스 생성
 	Random random = new Random();
 	// 로또 당첨 번호
@@ -58,12 +53,12 @@ public class ResultPage {
 	// 같음, 다름 여부 넣는 배열
 	List<String> same;
 	// 같음, 다름 배열을 받는 String 배열
-	List<List<String>> sameList = new ArrayList<>();
+	List<List<String>> sameList;
 
 	// 등수 출력 위한 배열
 	List<String> ranking;
 	// 전체 판매액 담을 정수 타입
-	int totalMoney = 300000000;
+	int totalMoney;
 	// 총 당첨 금액 담을 정수 타입
 	int winningTotal = 0;
 	/////////////// 연습 값 담을 set/////////////////////////
@@ -79,8 +74,30 @@ public class ResultPage {
 		return buyLottoNumList;
 	}
 
+	// setter, getter
+
 	public void setBuyLottoNumList(List<List<Integer>> buyLottoNumList) {
 		this.buyLottoNumList = buyLottoNumList;
+	}
+
+	public int getLottoBonus() {
+		return lottoBonus;
+	}
+
+	public void setLottoBonus(int lottoBonus) {
+		this.lottoBonus = lottoBonus;
+	}
+
+	public void setLottoNum(List<Integer> lottoNum) {
+		this.lottoNum = lottoNum;
+	}
+
+	public int getTotalMoney() {
+		return totalMoney;
+	}
+
+	public void setTotalMoney(int totalMoney) {
+		this.totalMoney = totalMoney;
 	}
 
 	public JPanel getPnl() {
@@ -93,61 +110,106 @@ public class ResultPage {
 
 	// Result 화면 생성
 	public ResultPage() {
-		getLottoNum();
+//		getLottoNum();
 	}
+	// setter, getter 끝
 
-	// pnl 만들 메소드
 	public void setPanel() {
-
 		// 이미지 받아오기
 		Toolkit kit = Toolkit.getDefaultToolkit();
 		URL url = ResultPage.class.getClassLoader().getResource("images/critical.png");
 		ImageIcon image = new ImageIcon(kit.getImage(url).getScaledInstance(20, 20, Image.SCALE_SMOOTH));
-		
+
 		URL backgroundUrl = ResultPage.class.getClassLoader().getResource("images/backgroundimg.png");
 		Image background = new ImageIcon(backgroundUrl).getImage();
+
+		URL plusP = ResultPage.class.getClassLoader().getResource("images/plus.png");
+		ImageIcon plus = new ImageIcon(kit.getImage(plusP));
+
+		URL ball7 = ResultPage.class.getClassLoader().getResource("images/ballB.png");
+		ImageIcon ballB = new ImageIcon(kit.getImage(ball7).getScaledInstance(70, 70, Image.SCALE_SMOOTH));
+		
+		URL backCard = ResultPage.class.getClassLoader().getResource("images/card_back.png");
+		ImageIcon cardBack = new ImageIcon(kit.getImage(backCard));
 		// 이미지 받아오기 끝
 
 		// pnlLottoNums 시작
 		JPanel pnlLottoNums = new JPanel();
 		JLabel lblLottoNums = new JLabel("당첨 번호");
+		lblLottoNums.setFont(new Font("돋움", Font.BOLD, 20));
 		pnlLottoNums.add(lblLottoNums);
-		for (int lottoNumIndex = 0; lottoNumIndex < lottoNum.size(); lottoNumIndex++) {
-			JLabel showLottoNum = new JLabel(String.valueOf(lottoNum.get(lottoNumIndex)));
-			pnlLottoNums.add(showLottoNum);
+
+		URL[] urlAll = new URL[6];
+		JLabel showLottoNum[] = new JLabel[6];
+		for (int i = 0; i < urlAll.length; i++) {
+
+			urlAll[i] = ResultPage.class.getClassLoader().getResource("images/ball" + (i + 1) + ".png");
+			ImageIcon imageIcon = new ImageIcon(kit.getImage(urlAll[i]).getScaledInstance(70, 70, Image.SCALE_SMOOTH));
+			showLottoNum[i] = new JLabel((ImageIcon) imageIcon);
+			showLottoNum[i].setText(String.valueOf(lottoNum.get(i)));
+			showLottoNum[i].setHorizontalTextPosition(JLabel.CENTER);
+			showLottoNum[i].setFont(new Font("Serif", Font.BOLD, 20));
+			pnlLottoNums.add(showLottoNum[i]);
 		}
 
-		JLabel lblBonusNum = new JLabel("보너스 번호");
+		JLabel lblPlus = new JLabel(plus);
+		pnlLottoNums.add(lblPlus);
+
+		JLabel lblBonusNum = new JLabel(ballB);
+		lblBonusNum.setText(String.valueOf(lottoBonus));
+		lblBonusNum.setHorizontalTextPosition(JLabel.CENTER);
+		lblBonusNum.setFont(new Font("Serif", Font.BOLD, 20));
 		pnlLottoNums.add(lblBonusNum);
-		JLabel showBonusNum = new JLabel(Integer.toString(lottoBonus));
-		pnlLottoNums.add(showBonusNum);
+
+		pnlLottoNums.setBorder(BorderFactory.createEmptyBorder(20, 10, 10, 10));
 		// pnlLottoNums 끝
 
 		// underLottoNums
 		JPanel underLottoNums = new JPanel(); // lblLottoNums와 나누기 위해 만든 패널
 
-		// printResult
-		makefield(lotto);
+		// printResultAll
+		JPanel printResultAll = new JPanel();
 
+		makefield(lotto);
+		// printResult
 		JPanel printResult = new JPanel();
 		for (int i = 0; i < 5; i++) {
 			JPanel a = new JPanel();
 			printResult.add(a);
-			for (int j = 0; j < 8; j++) {
+			a.setOpaque(false);
+			for (int j = 0; j < 7; j++) {
 				a.add(lotto[i][j]);
 			}
 		}
 		// printResult 끝
-		
+
 		BoxLayout result = new BoxLayout(printResult, BoxLayout.Y_AXIS);
 		printResult.setLayout(result);
 
+		// printResultSame
+		JPanel printResultSame = new JPanel();
+		for (int k = 0; k < buyLottoNumList.size(); k++) {
+			JPanel a = new JPanel();
+			a.setBorder(BorderFactory.createEmptyBorder(30, 10, 10, 10)); // 상하좌우 10씩 띄우기
+			a.setOpaque(false);
+			printResultSame.add(a);
+			a.add(lotto[k][7]);
+		}
+		// printResultSame 끝
+
+		BoxLayout resultSame = new BoxLayout(printResultSame, BoxLayout.Y_AXIS);
+		printResultSame.setLayout(resultSame);
+
+		printResultAll.add(printResult);
+		printResultAll.add(printResultSame);
+		// printResultAll 끝
+
 		// pnlBuyNums
-		for (int i=0; i<buyLottoNumList.size(); i++) {
-			for(int j=1; j < buyLottoNumList.get(0).size()+1; j++) {
+		for (int i = 0; i < buyLottoNumList.size(); i++) {
+			for (int j = 1; j < buyLottoNumList.get(0).size() + 1; j++) {
 				lotto[i][j].setText(String.valueOf(buyLottoNumList.get(i).get(j - 1)));
 				lotto[i][j].setForeground(Color.white);
-				
+
 				lotto[i][j].setHorizontalTextPosition(JLabel.CENTER);
 			}
 		}
@@ -162,60 +224,54 @@ public class ResultPage {
 				+ "</p></html>");
 		ToolTipManager m = ToolTipManager.sharedInstance(); // 툴팁 여는 시간 조정 위해 객체 생성
 		m.setInitialDelay(0); // 초기 툴팁 출력 지연시간 0초 설정
-		JLabel price = new JLabel(String.valueOf(totalMoney));
-		nextBtn = new JButton("다음 회차");
+		JLabel winningPrice = new JLabel("당첨금 수령액: " + String.valueOf(winningTotal));
+		JLabel price = new JLabel("당첨 총 금액: " + String.valueOf(totalMoney));
+		nextBtn = new MyEmphasizeButton("다음 회차");
 
 		others.add(info);
+		others.add(winningPrice);
 		others.add(price);
 		others.add(nextBtn);
 		// others 끝
 
-//		underLottoNums.add(pnlWinning);
-		underLottoNums.add(printResult);
-//		underLottoNums.add(pnlBuyNums);
+		underLottoNums.add(printResultAll);
 		underLottoNums.add(others);
 		// underLottoNums 끝
-		
+
 		BoxLayout underLottoNumsY = new BoxLayout(underLottoNums, BoxLayout.Y_AXIS);
 		underLottoNums.setLayout(underLottoNumsY);
 
 		// pnl 전체 담을 패널
-		pnl = new JPanel(){
-		      public void paintComponent(Graphics g) {
-		          g.drawImage(background, 0, 0, null);
-		          setOpaque(false);
-		       }
-		    };
+		pnl = new JPanel() {
+			public void paintComponent(Graphics g) {
+				g.drawImage(background, 0, 0, null);
+				setOpaque(false);
+			}
+		};
 		pnl.add(pnlLottoNums);
 		pnl.add(underLottoNums);
 		// pnl 끝
-		
-		
+
 		BoxLayout pnlY = new BoxLayout(pnl, BoxLayout.Y_AXIS);
 		pnl.setLayout(pnlY);
 
-		// 레이아웃
-		pnlLottoNums.setBounds(0, 0, 784, 138);
-//		pnlWinning.setBounds(0, 138, 784, 138);
-//		pnlBuyNums.setBounds(0, 276, 784, 138);
-//		lblBuyNums.setBounds(0, 0, 65, 40);
-		price.setBounds(78, 424, 315, 24);
-		
-		price.setFont(new Font("굴림", Font.PLAIN, 20));
-		// 레이아웃 끝
-
 		// 디자인
-		pnl.setBackground(new Color(248, 202, 204));
-
+		pnl.setOpaque(false);
 		pnlLottoNums.setOpaque(false); // 배경 색을 따라가도록
-//		pnlWinning.setOpaque(false);
-//		pnlBuyNums.setOpaque(false);
+		underLottoNums.setOpaque(false);
+		printResult.setOpaque(false);
+		printResultAll.setOpaque(false);
+		printResultSame.setOpaque(false);
+		others.setOpaque(false);
+		price.setFont(new Font("굴림", Font.PLAIN, 20));
+		lblLottoNums.setFont(new Font("굴림", Font.PLAIN, 20));
+
 		// 디자인 끝
-		
+
 		changeColor(lotto);
 	}
 
-// J라벨 35개 만드는 메소드
+	// J라벨 35개 만드는 메소드
 	public void makefield(JLabel[][] lotto) {
 		Font cardFont = new Font("Serif", Font.BOLD, 25);
 		Toolkit kit = Toolkit.getDefaultToolkit();
@@ -223,12 +279,12 @@ public class ResultPage {
 		URL cardH = ResultPage.class.getClassLoader().getResource("images/card_heart.png");
 		URL cardC = ResultPage.class.getClassLoader().getResource("images/card_clover.png");
 		URL cardD = ResultPage.class.getClassLoader().getResource("images/card_diamond.png");
-		
+
 		ImageIcon cardSpade = new ImageIcon(kit.getImage(cardS));
 		ImageIcon cardHeart = new ImageIcon(kit.getImage(cardH));
 		ImageIcon cardClover = new ImageIcon(kit.getImage(cardC));
 		ImageIcon cardDiamond = new ImageIcon(kit.getImage(cardD));
-		
+
 		for (int i = 0; i < 5; i++) {
 			lotto[i][0] = new JLabel(String.valueOf(i + 1));
 			for (int j = 1; j < 7; j++) {
@@ -242,22 +298,23 @@ public class ResultPage {
 				lotto[3][j].setFont(cardFont);
 				lotto[4][j] = new JLabel(cardSpade); // 0*6
 				lotto[4][j].setFont(cardFont);
-	 		}
+			}
+		}
+		for (int i = 0; i < buyLottoNumList.size(); i++) {
 			lotto[i][7] = new JLabel(ranking.get(i));
 		}
-
 	}
 
-// 카드패널 색 변경 메소드
+	// 카드패널 색 변경 메소드
 	public void changeColor(JLabel[][] lotto) {
 		Font cardFontnone = new Font("Serif", Font.BOLD, 15);
-		for(int i = 0; i < sameList.size(); i++) {
-			for(int j = 0; j < sameList.get(i).size(); j++) {
-				if(sameList.get(i).get(j).equals("다름")) {
-					lotto[i][j + 1].setForeground(new Color (107,106,105));
+		for (int i = 0; i < sameList.size(); i++) {
+			for (int j = 0; j < sameList.get(i).size(); j++) {
+				if (sameList.get(i).get(j).equals("다름")) {
+					lotto[i][j + 1].setForeground(new Color(107, 106, 105));
 					lotto[i][j + 1].setFont(cardFontnone);
-				} else if(sameList.get(i).get(j).equals("보너스 번호 당첨!")) {
-					lotto[i][j + 1].setForeground(new Color (221, 168, 81));
+				} else if (sameList.get(i).get(j).equals("보너스 번호 당첨!")) {
+					lotto[i][j + 1].setForeground(new Color(221, 168, 81));
 				}
 			}
 		}
@@ -287,24 +344,26 @@ public class ResultPage {
 			lottoBonus = random.nextInt(45) + 1;
 		}
 		System.out.println("보너스 값: " + lottoBonus);
-		getNumberPractice();
-		compareLottoNum(); 
+		System.out.println("LottoNum에 들어가써?" + lottoNum);
+//		getBuyLottoNum();
+//		getNumberPractice();
+		compareLottoNum();
 	}
 
-//	// 내가 구매한 로또 5회(5000원) 구하는 메소드
-//	public void getBuyLottoNum() {
-//		for (int j = 0; j < 5; j++) {
-//			buyLottoNum = new ArrayList<>();
-//			// 내가 구매한 로또 1회(1000원) 6자리 수 구하는 메소드
-//			for (int i = 0; i <= 5; i++) { // 6번 돌리기 위한 숫자
-//				buyLottoNum.add(random.nextInt(45) + 1);
-//				Collections.sort(buyLottoNum);
-//			}
-//
-//			// 이중배열에 list배열 담기
-//			buyLottoNumList.add(buyLottoNum);
-//		}
-//	}
+	// 내가 구매한 로또 5회(5000원) 구하는 메소드
+	public void getBuyLottoNum() {
+		for (int j = 0; j < 4; j++) {
+			buyLottoNum = new ArrayList<>();
+			// 내가 구매한 로또 1회(1000원) 6자리 수 구하는 메소드
+			for (int i = 0; i <= 5; i++) { // 6번 돌리기 위한 숫자
+				buyLottoNum.add(random.nextInt(45) + 1);
+				Collections.sort(buyLottoNum);
+			}
+
+			// 이중배열에 list배열 담기
+			buyLottoNumList.add(buyLottoNum);
+		}
+	}
 
 ///////////////////////////// 연습 list 배열에 6개의 값 담기 /////////////////////////
 	public void getNumberPractice() {
@@ -320,7 +379,7 @@ public class ResultPage {
 			buyLottoNumList.add(buyLottoNum);
 //			System.out.println(buyLottoNum);
 		}
-		buyLottoNumList.add(lottoNum);
+//		buyLottoNumList.add(lottoNum);
 		System.out.println("연습할 이중 배열 출력" + buyLottoNum);
 	}
 ////////////////////////////////// 연습 list 배열에 6개의 값 담기 end/////////////////////////
@@ -333,6 +392,7 @@ public class ResultPage {
 		// 변수 설정
 		Integer buyLottoRandom = 0; // 내가 선택한 숫자 6개 배열 중 1개의 숫자 담을 변수
 		Integer lottoRandom = 0; // 로또 당첨 번호 1개의 숫자 담을 변수
+		sameList = new ArrayList<>();
 
 		for (int buyListIndex = 0; buyListIndex < buyLottoNumList.size(); buyListIndex++) {
 			same = new ArrayList<>();
@@ -404,13 +464,25 @@ public class ResultPage {
 				}
 				break;
 			case 1:
-				ranking.add("3등");
+				if (countB == 0) {
+					ranking.add("3등");
+				} else {
+					ranking.add("4등");
+				}
 				break;
 			case 2:
-				ranking.add("4등");
+				if (countB == 0) {
+					ranking.add("4등");
+				} else {
+					ranking.add("5등");
+				}
 				break;
 			case 3:
-				ranking.add("5등");
+				if (countB == 0) {
+					ranking.add("5등");
+				} else {
+					ranking.add("낙첨");
+				}
 				break;
 			default:
 				ranking.add("낙첨");
@@ -431,7 +503,7 @@ public class ResultPage {
 	public void getMoney() {
 		int winningMoney;
 		// 1. totalMoney 당첨분 금액으로 설정하기
-		totalMoney = (totalMoney + (1000 * buyLottoNumList.size())) / 2;
+		totalMoney = (totalMoney + (1000 * buyLottoNumList.size()));
 		System.out.println("당첨분 총 금액: " + totalMoney);
 
 		// 5등 당첨 횟수 -> 1, 2, 3등 계산에서 사용
@@ -456,6 +528,7 @@ public class ResultPage {
 		totalMoney -= winningMoney;
 		winningTotal += winningMoney;
 		System.out.println("총 당첨 금액: " + winningTotal);
+		setPanel();
 	}
 
 	public static void main(String[] args) {
