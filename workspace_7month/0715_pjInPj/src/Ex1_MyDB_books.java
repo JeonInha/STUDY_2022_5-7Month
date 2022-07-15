@@ -41,7 +41,7 @@ class Books {
 				int id = rs.getInt("bookid");
 				String title = rs.getString("title");
 				int price = rs.getInt("price");
-				System.out.printf("[id: %d | %s, %d¿ø]\n", id, title, price);
+				System.out.printf("[id: %d | %s, %dì›]\n", id, title, price);
 			}
 			
 		} catch (SQLException e) {
@@ -53,7 +53,7 @@ class Books {
 		}
 	}
 	
-	// °³¹ßÀÚ ÀÔÀå¿¡¼­ µ¿ÀÛÀ» ÇÑ °á°ú¸¦ Ãâ·ÂÇÏ¸é ÁÁÀ» °Í °°À½. int³ª ºÒ¿¬ °ªÀ¸·Î.
+	// ê°œë°œì ì…ì¥ì—ì„œ ë™ì‘ì„ í•œ ê²°ê³¼ë¥¼ ì¶œë ¥í•˜ë©´ ì¢‹ì„ ê²ƒ ê°™ìŒ. intë‚˜ ë¶ˆì—° ê°’ìœ¼ë¡œ.
 	void commandBookDB(String query) {
 		Connection conn = null;
 		Statement stmt = null;
@@ -82,9 +82,7 @@ class ManageSys {
 	
 	private String scanString() {
 		Scanner sc = new Scanner(System.in);
-		String s = sc.nextLine();
-		sc.close();
-		return s;
+		return sc.nextLine();
 	}
 	
 	private int scanInt() {
@@ -96,76 +94,75 @@ class ManageSys {
 				num = sc.nextInt();
 				a = false;
 			} catch (Exception e) {
-				System.out.println("¼ıÀÚ¸¦ ÀÔ·ÂÇÏ¼¼¿ä.");
+				System.out.println("ìˆ«ìë¥¼ ì…ë ¥í•˜ì„¸ìš”.");
 			}
 		} while (a);
-		sc.close();
 		return num;
 	}
 
 	private void run() {
 
 		System.out.println("====================");
-		System.out.println("====µµ¼­°ü¸®½Ã½ºÅÛ");
+		System.out.println("====ë„ì„œê´€ë¦¬ì‹œìŠ¤í…œ");
 		System.out.println("====================");
 
 		int num = 0;
 		while (true) {
 			System.out.println("====================");
-			System.out.println("1. ÀüÃ¼ ¸ñ·Ï Ãâ·Â");
-			System.out.println("2. µµ¼­ °Ë»ö");
-			System.out.println("3. µµ¼­ Ãß°¡");
-			System.out.println("4. µµ¼­ »èÁ¦");
-			System.out.println("5. µµ¼­ ¼öÁ¤");
+			System.out.println("1. ì „ì²´ ëª©ë¡ ì¶œë ¥");
+			System.out.println("2. ë„ì„œ ê²€ìƒ‰");
+			System.out.println("3. ë„ì„œ ì¶”ê°€");
+			System.out.println("4. ë„ì„œ ì‚­ì œ");
+			System.out.println("5. ë„ì„œ ìˆ˜ì •");
 			System.out.println();
-			System.out.println("9. ÇÁ·Î±×·¥ Á¾·á");
+			System.out.println("9. í”„ë¡œê·¸ë¨ ì¢…ë£Œ");
 			System.out.println("--------------------");
-			System.out.print("ÀÔ·Â: ");
+			System.out.print("ì…ë ¥: ");
 			num = scanInt();
 			System.out.println("====================");
 			
 			if (num == 1) {
-				System.out.println("1. ÀüÃ¼ ¸ñ·Ï Ãâ·Â");
-				// ±ò²ûÇÏ°Ô ÇÏ°í ½ÍÀ¸¸é ÀÌ°É ·¦ÇÎÇÏ´Â ¸Ş¼Òµå¸¦ ¸¸µé¾î¼­ ±ò²ûÇÏ°Ô ÇØº¸Àå.
+				System.out.println("1. ì „ì²´ ëª©ë¡ ì¶œë ¥");
+				// ê¹”ë”í•˜ê²Œ í•˜ê³  ì‹¶ìœ¼ë©´ ì´ê±¸ ë©í•‘í•˜ëŠ” ë©”ì†Œë“œë¥¼ ë§Œë“¤ì–´ì„œ ê¹”ë”í•˜ê²Œ í•´ë³´ì¥.
 				books.readBookDB(books.allPrintQuary());
 				
 			} else if (num == 2) {
-				System.out.println("2. µµ¼­ °Ë»ö");
-				System.out.print("id ¶Ç´Â Ã¥ Á¦¸ñ °Ë»ö: ");
+				System.out.println("2. ë„ì„œ ê²€ìƒ‰");
+				System.out.print("id ë˜ëŠ” ì±… ì œëª© ê²€ìƒ‰: ");
 				String input = scanString();
 				books.readBookDB(books.searchQuary(input));
 				
 			} else if (num == 3) {
-				System.out.println("3. µµ¼­ Ãß°¡");
-				System.out.print("Ã¥ Á¦¸ñ ÀÔ·Â: ");
+				System.out.println("3. ë„ì„œ ì¶”ê°€");
+				System.out.print("ì±… ì œëª© ì…ë ¥: ");
 				String title = scanString();
-				System.out.print("Ã¥ °¡°İ ÀÔ·Â: ");
+				System.out.print("ì±… ê°€ê²© ì…ë ¥: ");
 				int price = scanInt();
 				books.commandBookDB(books.insertQuary(title, price));
-				System.out.println("ÀÔ·Â ¿Ï·áµÇ¾ú½À´Ï´Ù. id: ");
+				System.out.println("ì…ë ¥ ì™„ë£Œë˜ì—ˆìŠµë‹ˆë‹¤. id: ");
 
 			} else if (num == 4) {
-				System.out.println("4. µµ¼­ »èÁ¦");
-				System.out.print("º¯°æÇÒ µµ¼­ÀÇ id ÀÔ·Â: ");
+				System.out.println("4. ë„ì„œ ì‚­ì œ");
+				System.out.print("ë³€ê²½í•  ë„ì„œì˜ id ì…ë ¥: ");
 				int id = scanInt();
 				books.commandBookDB(books.deleteQuary(id));
 				
 			} else if (num == 5) {
-				System.out.println("5. µµ¼­ ¼öÁ¤");
-				System.out.print("º¯°æÇÒ µµ¼­ÀÇ id ÀÔ·Â: ");
+				System.out.println("5. ë„ì„œ ìˆ˜ì •");
+				System.out.print("ë³€ê²½í•  ë„ì„œì˜ id ì…ë ¥: ");
 				int id = scanInt();
-				System.out.print("º¯°æÇÒ µµ¼­ÀÇ Á¦¸ñ ÀÔ·Â: ");
+				System.out.print("ë³€ê²½í•  ë„ì„œì˜ ì œëª© ì…ë ¥: ");
 				String title = scanString();
-				System.out.print("º¯°æÇÒ µµ¼­ÀÇ °¡°İ ÀÔ·Â: ");
+				System.out.print("ë³€ê²½í•  ë„ì„œì˜ ê°€ê²© ì…ë ¥: ");
 				int price = scanInt();
 				books.commandBookDB(books.updateQuary(title, price, id));
 
 			} else if (num == 9) {
-				System.out.println("ÇÁ·Î±×·¥À» Á¾·áÇÕ´Ï´Ù.");
+				System.out.println("í”„ë¡œê·¸ë¨ì„ ì¢…ë£Œí•©ë‹ˆë‹¤.");
 				break;
 				
 			} else {
-				System.out.println("Àß¸øµÈ ÀÔ·Â");
+				System.out.println("ì˜ëª»ëœ ì…ë ¥");
 			}
 		}
 
