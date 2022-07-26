@@ -1,33 +1,6 @@
 import java.util.*;
 
-class Skill123 {
-	int type;
-	String name;
-	String result_critical;
-	String result_success;
-	String result_fail;
-	String result_fumble;
-	int aim;
-
-	public Skill123(int type, String name, String result_critical, String result_success, String result_fail,
-			String result_fumble, int aim) {
-		super();
-		this.type = type;
-		this.name = name;
-		this.result_critical = result_critical;
-		this.result_success = result_success;
-		this.result_fail = result_fail;
-		this.result_fumble = result_fumble;
-		this.aim = aim;
-	}
-}
-
 public class Battle_Algo {
-	// 아이디어 1: 난이도 조절:: 변수로 빼고 난이도를 조절하게 시키면 됨
-	// 해야 할 것: 적에 따라 스킬 장착시키기
-	// 적에 따라 결과 조절하기
-	// 메소드 정리하기
-
 	Random random = new Random();
 
 	int calcHit(int skillAim) {
@@ -36,18 +9,18 @@ public class Battle_Algo {
 
 	int calcGetAway(int turn, int skillAim) {
 		return (25 + (turn) * 5 + skillAim);
-		// 지금은 도망치기 어렵게 해놨음.
+		// 25 - 30 - 35
 	}
 
 	String enemyStatus(Enemy enemy) {
-		if (enemy.Enemy_IniVar == 3) {
-			return enemy.Friendship_3_Script;
-		} else if (enemy.Enemy_IniVar == 2) {
-			return enemy.Friendship_2_Script;
-		} else if (enemy.Enemy_IniVar == 1) {
-			return enemy.Friendship_1_Script;
+		if (enemy.getIniVar() >= 3) {
+			return enemy.getFriendship_3_Script();
+		} else if (enemy.getIniVar() == 2) {
+			return enemy.getFriendship_2_Script();
+		} else if (enemy.getIniVar() == 1) {
+			return enemy.getFriendship_1_Script();
 		} else {
-			return enemy.Friendship_0_Script;
+			return enemy.getFriendship_0_Script();
 		}
 	}
 
@@ -69,32 +42,73 @@ public class Battle_Algo {
 	int enemyAction(Enemy enemy) {
 		int userDamage = 0;
 		int randomDice = (int) (random.nextDouble() * 100);
-	
-		if (enemy.Enemy_IniVar>3) {
-			if (randomDice>96) {
-				System.out.println("크리티컬! "+enemy.getEnemy_name()+"에게 세게 공격당했다.");
-				userDamage = 2;
-			} else if (randomDice>30){
-				System.out.println(enemy.getEnemy_name()+"에게 공격당했다.");
-				userDamage = 1;
+
+		if (enemy.getIniVar() < 1) {
+			if (randomDice > 96) {
+				System.out.println("크리티컬! " + enemy.getName() + "에게 세게 공격당했다.");
+				userDamage = 2 + enemy.getPower();
+			} else if (randomDice > 30) {
+				System.out.println(enemy.getName() + "에게 공격당했다.");
+				userDamage = 1 + enemy.getPower();
 			} else {
-				System.out.println(enemy.getEnemy_name()+"의 공격을 피했다.");
+				System.out.println(enemy.getName() + "의 공격을 피했다.");
 			}
-		} else if (enemy.Enemy_IniVar <= 1) {
-			if (randomDice>50) {
-				System.out.println(enemy.getEnemy_name()+"에게 공격당했다.");
-				userDamage = 1;
+
+		} else if (enemy.getIniVar() == 1) {
+			if (randomDice > 50) {
+				System.out.println(enemy.getName() + "에게 공격당했다.");
+				userDamage = 1 + enemy.getPower();
 			} else {
-				System.out.println(enemy.getEnemy_name()+"의 공격을 피했다.");
+				System.out.println(enemy.getName() + "의 공격을 피했다.");
 			}
+
 		} else {
-			System.out.println(enemy.getEnemy_name()+"는 상황을 보고 있다.");
+			System.out.println(enemy.getName() + "는 상황을 보고 있다.");
 		}
 		return userDamage;
 	}
 
-	int hitSkill(Enemy enemy, Skill skill) {
+//	List<Skill> makeUserSkillset(SaveInfo user) {
+//		SkillImpl si = new SkillImpl();
+//		List<Skill> allSkill = si.readSkill();
+//		List<Integer> itemNum = new ArrayList<>();
+//		
+//		for ( Item item : user.getInventory()) {
+//			
+//		}
+//			
+//		List<Skill> skillset = new ArrayList<>();
+//		
+//		return skillset;
+//	}
+
+	int[] letsUseSkill(Enemy enemy, Skill skill) {
+		int[] result = new int[3];
+
+		if (skill.getType() == Skill.SKILL_TYPE_ACTION) {
+			result = actionSkill(skill);
+		} else if (skill.getType() == Skill.SKILL_TYPE_HEIST) {
+			result = heistSkill(enemy, skill);
+		} else {
+			result = hitSkill(skill);
+		}
+
+		System.out.println("확인용:::");
+		System.out.println("우호도 증감: " + result[0]);
+		System.out.println("체력 증감: " + result[1]);
+		System.out.println("내 체력 증감: " + result[2]);
+		// 0 = iniVar
+		// 1 = enemylife
+		// 3 = userLife
+		return result;
+	}
+
+	int[] hitSkill(Skill skill) {
+		System.out.println("공격스킬 실행");
+		int[] result = new int[3];
 		int damage = 0;
+		int warning = 0;
+		int userDamage = 0;
 
 		int calcHit = calcHit(skill.aim);
 		int dice = (int) (random.nextDouble() * 100);
@@ -102,29 +116,39 @@ public class Battle_Algo {
 
 		if (dice > 95) {
 			System.out.println(skill.getFumbleScript());
-			enemy.Enemy_IniVar -= 1;
+			warning -= 1;
+			userDamage -= 0;
 		} else if (dice < 5) {
 			System.out.println(skill.getCriticalScript());
-			damage = 2;
+			damage -= 2;
+			damage -= skill.power;
 		} else if (dice < calcHit) {
 			System.out.println(skill.getSucessScript());
-			damage = 1;
+			damage -= 1;
+			damage -= skill.power;
 		} else {
 			System.out.println(skill.getFailScript());
 		}
+		warning -= 1;
 
-		enemy.Enemy_IniVar -= 1;
-		return damage;
+		result[0] = warning;
+		result[1] = damage;
+		result[2] = userDamage;
+		return result;
 	}
 
-	int actionSkill(Enemy enemy, Skill skill) {
+	int[] actionSkill(Skill skill) {
+		System.out.println("액션스킬 실행");
+		int[] result = new int[3];
+		int damage = 0;
 		int warning = 0;
-		
+		int userDamage = 0;
+
 		int calcHit = calcHit(skill.aim);
 		int dice = (int) (random.nextDouble() * 100);
 		System.out.println("성공치: " + calcHit);
 		System.out.println("다이스: " + dice);
-		
+
 		if (dice > 95) {
 			System.out.println(skill.getFumbleScript());
 			warning -= 1;
@@ -137,41 +161,72 @@ public class Battle_Algo {
 		} else {
 			System.out.println(skill.getFailScript());
 		}
-		
-		return warning;
+		result[0] = warning;
+		result[1] = damage;
+		result[2] = userDamage;
+		return result;
 	}
 
-	int heistSkill(Enemy enemy, Skill skill) {
+	int[] heistSkill(Enemy enemy, Skill skill) {
+		System.out.println("기습스킬 실행");
+		int[] result = new int[3];
 		int damage = 0;
-		
+		int warning = 0;
+		int userDamage = 0;
+
 		int calcHit = calcHit(skill.aim);
 		int dice = (int) (random.nextDouble() * 100);
 		System.out.println("성공치: " + calcHit);
 		System.out.println("다이스: " + dice);
-		
+
 		if (dice > 95) {
 			System.out.println(skill.getFumbleScript());
-			enemy.Enemy_IniVar-=1;
+			warning -= 1;
+			userDamage -= 1;
+
 		} else if (dice < 5) {
 			System.out.println(skill.getCriticalScript());
-			damage = enemy.Enemy_IniVar + 30; 
+			damage = -(enemy.getIniVar() + 30);
+			damage -= skill.power;
+
 		} else if (dice < calcHit) {
 			System.out.println(skill.getSucessScript());
-			damage = enemy.Enemy_IniVar-1; 
+			damage = -(enemy.getIniVar() - 1);
+			damage -= skill.power;
 		} else {
 			System.out.println(skill.getFailScript());
 		}
-		return damage;
+
+		warning -= 2;
+
+		result[0] = warning;
+		result[1] = damage;
+		result[2] = userDamage;
+		return result;
+	}
+
+	public SaveInfo setUserData() {
+		SaveInfo user = new SaveInfo();
+		user.setHp(5);
+		Item item1 = new Item(1, 2, 1);
+		Item item2 = new Item(4, 2, 1);
+		Item item3 = new Item(9, 1, 1);
+
+		List<Item> inven = new ArrayList<>();
+		inven.add(item1);
+		inven.add(item2);
+		inven.add(item3);
+
+		user.setInventory(inven);
+
+		return user;
 	}
 
 	// 임시데이터: 유저
-	String UserName = "영빈";
-	int userLife = 5;
-
-	public boolean battleLogic(Enemy enemy) {
+	public boolean battleLogic(Enemy enemy, SaveInfo user) {
 		SkillImpl si = new SkillImpl();
-		List<Skill> useSkill = si.readSkill();
-		
+		List<Skill> useSkill = si.readSkillset(enemy, user);
+
 		BattleOverDao bt = new BattleOverDao();
 		boolean isGetAway = false;
 		boolean isHappy = false;
@@ -179,11 +234,9 @@ public class Battle_Algo {
 
 		// 조우 페이즈
 		System.out.println("========================");
-		System.out.println(enemy.Enemy_name + "와 마주쳤다.");
+		System.out.println(enemy.getName() + "와 마주쳤다.");
 		System.out.println("========================");
-		enemy.Enemy_IniVar = 2;
-		enemy.Enemy_life = 3;
-		userLife = 3;
+
 		// 배틀 페이즈
 		for (int i = 0; i < 3; i++) {
 			System.out.println("------------------------");
@@ -192,77 +245,95 @@ public class Battle_Algo {
 			// 좀비의 상태 출력
 			System.out.println(enemyStatus(enemy));
 
-			System.out.println("우리 체력: " + userLife);
-			System.out.println("적의 체력: " + enemy.Enemy_life);
-			System.out.println(UserName + "은(는) 어떤 행동을 할까?");
+			System.out.println("우리 체력: " + user.getHp());
+			System.out.println("적의 체력: " + enemy.getLife());
+			System.out.println("어떤 행동을 할까?");
+
+			// 스킬선택 TODO
 			for (int j = 0; j < useSkill.size(); j++) {
 				System.out.print(String.valueOf(j + 1) + ". " + useSkill.get(j).name);
 				System.out.println("(성공률: " + calcHit(useSkill.get(j).aim) + ")");
 			}
-			System.out.println(useSkill.size()+". 도망치기(확률: ??)");
+			System.out.println((useSkill.size() + 1) + ". 도망치기(확률: ??)");
 			System.out.print("입력: ");
-			int input = new Scanner(System.in).nextInt();
+			int input = new Scanner(System.in).nextInt() - 1;
 
-			if (input == 1) {
-				enemy.Enemy_life -= hitSkill(enemy, useSkill.get(input));
-
-			} else if (input == 2) {				
-				enemy.Enemy_IniVar+= actionSkill(enemy, useSkill.get(input));
-
-			} else if (input == 3) {
-				isGetAway = runAway(i, enemy);
-				if (isGetAway) break;
-				
-			} else {
+			// 스킬결과
+			if (input > useSkill.size()) { // 잘못된 입력
 				System.out.println("잘못했서 ... 처음으로 가자.");
 				i--;
+			} else if (input == useSkill.size()) { // 도망
+				isGetAway = runAway(i, enemy);
+				if (isGetAway)
+					break;
+			} else { // 스킬 실행
+				Skill thisSkill = useSkill.get(input);
+				int[] result = letsUseSkill(enemy, thisSkill);
+
+				enemy.setIniVar(enemy.getIniVar() + result[0]);
+				enemy.setLife(enemy.getLife() + result[1]);
+				user.setHp(user.getHp() + result[2]);
 			}
 
+			System.out.println("== 확인용");
+			System.out.println("우호도: " + enemy.getIniVar());
+			System.out.println("적 체력: " + enemy.getLife());
+
 			// 상대의 행동 출력
-			System.out.println(enemy.Enemy_name+"의 공격!");
-			userLife -= enemyAction(enemy);
+			System.out.println(enemy.getName() + "이 행동한다.");
+			int d = enemyAction(enemy);
+			user.setHp(user.getHp() - d);
 
 			// 특수종료 확인
-			if (enemy.Enemy_life <= 0) {
+			if (enemy.getLife() <= 0) {
 				isDead = true;
 				break;
 			}
-			if (enemy.Enemy_IniVar >= 4) {
+			if (enemy.getIniVar() >= 4) {
 				isHappy = true;
 				break;
 			}
-			if (userLife <= 0) {
-				enemy.Enemy_IniVar = -20;
+			if (user.getHp() <= 0) {
+				enemy.setIniVar(-20);
 			}
 		}
 		// 결과 페이즈
 		System.out.println("========================");
 		System.out.println("결과 출력");
 
+		// 도망치기 //
 		if (isGetAway) {
-			bt.getFinal_Friendship_0(enemy.getEnemy_id());
-			
-			
-			
-			
+			bt.getRunAwayResult(enemy.getId());
+
+			// 상대 죽이기 // win
 		} else if (isDead) {
-			System.out.println("들개가 죽었다~~ 들개가 아이템을 떨어트렸당.");
-			int indx = random.nextInt(enemy.Enemy_Drop_Item.size());
-			System.out.println("떨어트린 아이템: " + enemy.Enemy_Drop_Item.get(indx));
+			bt.getWinResult(enemy.getId());
+			if (enemy.getDropItem() != null) {
+				int indx = random.nextInt(enemy.getDropItem().size());
+				if (enemy.getDropItem().size() > 0) {
+					System.out.println("떨어트린 아이템: " + enemy.getDropItem().get(indx));
+				}
+			} else {
+				System.out.println("아이템이 없는 몬스터였당.");
+			}
 
-		} else if (isHappy || enemy.Enemy_IniVar == 3) {
-			System.out.println("흥미를 잃은 들개가 다른 쪽으로 가버렸당. 들개가 떠난 자리에 물건이 남아있당.");
-			int indx = random.nextInt(enemy.Enemy_Drop_Item.size());
-			System.out.println("떨어트린 아이템: " + enemy.Enemy_Drop_Item.get(indx));
+			// 상대 협상 굿엔딩 //
+		} else if (isHappy || enemy.getIniVar() == 3) {
+			bt.getFriendResult(enemy.getId());
+			int indx = random.nextInt(enemy.getDropItem().size());
+			if (enemy.getDropItem().size() > 0) {
+				System.out.println("떨어트린 아이템: " + enemy.getDropItem().get(indx));
+			}
 
-		} else if (enemy.Enemy_IniVar <= 0) {
-			System.out.println("들개와 싸우다가 목을 심하게 물렸당. 죽어버렸다 ...........");
-			System.out.println("게임 오버");
+			// 우리가 죽는 엔딩
+		} else if (enemy.getIniVar() <= 0) {
+			bt.getLoseResult(enemy.getId());
 
+			// 아무것도 없는 엔딩
 		} else {
-			System.out.println("들개와 대치했지만 죽이지는 못했다. 들개를 간신히 따돌렸다.");
+			bt.getNomalResult(enemy.getId());
 		}
-		System.out.println("남은 HP: " + userLife);
+		System.out.println("남은 HP: " + user.getHp());
 
 		// 이건 반복테스트할때 필요한거:: 지워도 됨
 		System.out.println("전투 한번 더 하려면 1, 아니면 아무거나 입력");
@@ -278,14 +349,15 @@ public class Battle_Algo {
 	public static void main(String[] args) {
 		Battle_Algo al = new Battle_Algo();
 		Enemy_Dao ed = new Enemy_Dao();
-		
+		SaveInfo user = al.setUserData();
+
 		HashMap<Integer, Enemy> EnemyMap = ed.getEnemys();
-		
+
 		while (true) {
-			al.battleLogic(EnemyMap.get(20));
+			boolean result = al.battleLogic(EnemyMap.get(10), user);
+			if (!result)
+				return;
 		}
-		
-		
-		
+
 	}
 }

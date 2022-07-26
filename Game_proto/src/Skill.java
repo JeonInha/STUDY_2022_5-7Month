@@ -4,12 +4,17 @@ public class Skill {
 	int type;
 	String name;
 	int aim;
+	int power;
 	String needItem;
 	
 	String criticalScript;
 	String sucessScript;
 	String failScript;
 	String fumbleScript;
+	
+	static final int SKILL_TYPE_HIT = 2;
+	static final int SKILL_TYPE_HEIST = 3;
+	static final int SKILL_TYPE_ACTION = 1;
 	
 	public int getId() {
 		return id;
@@ -65,15 +70,21 @@ public class Skill {
 	public void setFumbleScript(String fumbleScript) {
 		this.fumbleScript = fumbleScript;
 	}
+	public int getPower() {
+		return power;
+	}
+	public void setPower(int power) {
+		this.power = power;
+	}
 	
-	
-	public Skill(int id, int type, String name, int aim, String needItem, String criticalScript, String sucessScript,
+	public Skill(int id, int type, String name, int aim, int power, String needItem, String criticalScript, String sucessScript,
 			String failScript, String fumbleScript) {
 		super();
 		this.id = id;
 		this.type = type;
 		this.name = name;
 		this.aim = aim;
+		this.power = power;
 		this.needItem = needItem;
 		this.criticalScript = criticalScript;
 		this.sucessScript = sucessScript;

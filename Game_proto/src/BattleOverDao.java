@@ -8,27 +8,31 @@ import kr.co.green.BusanUtil;
 public class BattleOverDao {
 	public static void main(String[] args) {
 		BattleOverDao bt = new BattleOverDao();
-		bt.getFinal_Friendship_0(20);
+		bt.getFriendResult(20);
+		bt.getRunAwayResult(20);
+		bt.getWinResult(20);
+		bt.getNomalResult(20);
+		bt.getLoseResult(20);
 	}
 
-	public void getFinal_Friendship_3(int Enemy_id) {
-		findFinal_Scripts(Enemy_id, "Final_Friendship_3");
+	public void getFriendResult(int Enemy_id) {
+		findFinal_Scripts(Enemy_id, "FriendScript");
 	}
 
-	public void getFinal_Friendship_2(int Enemy_id) {
-		findFinal_Scripts(Enemy_id, "Final_Friendship_2");
+	public void getRunAwayResult(int Enemy_id) {
+		findFinal_Scripts(Enemy_id, "RunAwayScript");
 	}
 
-	public void getFinal_Friendship_1(int Enemy_id) {
-		findFinal_Scripts(Enemy_id, "Final_Friendship_1");
+	public void getWinResult(int Enemy_id) {
+		findFinal_Scripts(Enemy_id, "WinScript");
 	}
 	
-	public void getFinal_Friendship_0(int Enemy_id) {
-		findFinal_Scripts(Enemy_id, "Final_Friendship_0");
+	public void getNomalResult(int Enemy_id) {
+		findFinal_Scripts(Enemy_id, "NomalScript");
 	}
 	
-	public void getFinal_Victory(int Enemy_id) {
-		findFinal_Scripts(Enemy_id, "Final_Victory");
+	public void getLoseResult(int Enemy_id) {
+		findFinal_Scripts(Enemy_id, "LoseScript");
 	}
 	
 	public void findFinal_Scripts(int Enemy_id, String find) {
