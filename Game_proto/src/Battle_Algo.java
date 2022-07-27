@@ -7,8 +7,8 @@ public class Battle_Algo {
 		return 50 + skillAim;
 	}
 
-	int calcGetAway(int turn, int skillAim) {
-		return (25 + (turn) * 5 + skillAim);
+	int calcGetAway(int turn, int skillAim, Enemy enemy) {
+		return (20 + (turn) * 5 + skillAim + (enemy.getIniVar()-1)*10);
 		// 25 - 30 - 35
 	}
 
@@ -26,7 +26,7 @@ public class Battle_Algo {
 
 	boolean runAway(int turn, Enemy enemy) {
 		System.out.println("<도망치기>");
-		double getAwayDouble = calcGetAway(turn, 0);
+		double getAwayDouble = calcGetAway(turn, 0, enemy);
 		double dice = random.nextDouble() * 100;
 		System.out.println("도주성공률: " + String.valueOf(getAwayDouble));
 		System.out.println("다이스: " + String.valueOf(dice));
@@ -67,20 +67,6 @@ public class Battle_Algo {
 		}
 		return userDamage;
 	}
-
-//	List<Skill> makeUserSkillset(SaveInfo user) {
-//		SkillImpl si = new SkillImpl();
-//		List<Skill> allSkill = si.readSkill();
-//		List<Integer> itemNum = new ArrayList<>();
-//		
-//		for ( Item item : user.getInventory()) {
-//			
-//		}
-//			
-//		List<Skill> skillset = new ArrayList<>();
-//		
-//		return skillset;
-//	}
 
 	int[] letsUseSkill(Enemy enemy, Skill skill) {
 		int[] result = new int[3];
@@ -208,14 +194,18 @@ public class Battle_Algo {
 	public SaveInfo setUserData() {
 		SaveInfo user = new SaveInfo();
 		user.setHp(5);
-		Item item1 = new Item(1, 2, 1);
-		Item item2 = new Item(4, 2, 1);
-		Item item3 = new Item(9, 1, 1);
+		Item item1 = new Item(1, 2, 1); // 몽둥이
+		Item item2 = new Item(4, 2, 1); // 권총
+		Item item3 = new Item(9, 1, 1); // 육포
+		Item item4 = new Item(8, 1, 1); // 육포
+		Item item5 = new Item(14, 1, 1); // 육포
 
 		List<Item> inven = new ArrayList<>();
 		inven.add(item1);
 		inven.add(item2);
 		inven.add(item3);
+		inven.add(item4);
+		inven.add(item5);
 
 		user.setInventory(inven);
 
@@ -225,7 +215,8 @@ public class Battle_Algo {
 	// 임시데이터: 유저
 	public boolean battleLogic(Enemy enemy, SaveInfo user) {
 		SkillImpl si = new SkillImpl();
-		List<Skill> useSkill = si.readSkillset(enemy, user);
+		List<Skill> useSkill = si.readSkill();
+//		List<Skill> useSkill = si.readSkillset(enemy, user);
 
 		BattleOverDao bt = new BattleOverDao();
 		boolean isGetAway = false;
@@ -248,8 +239,37 @@ public class Battle_Algo {
 			System.out.println("우리 체력: " + user.getHp());
 			System.out.println("적의 체력: " + enemy.getLife());
 			System.out.println("어떤 행동을 할까?");
+			
+			System.out.println("1. 공격하기");
+			System.out.println("2. 행동하기");
+			System.out.println("3. 도망치기");
+			System.out.print("입력: ");
+			int input1 = new Scanner(System.in).nextInt();
+			if (input1 == 1) {
+				List<Skill> c = si.getAttckSkillList(enemy.getId(), user.getInventory());
+				List<Skill> b = si.getHeistSkillList(enemy.getId(), user.getInventory());
+				
+				List<Skill> a = new ArrayList<>();
+				a.addAll(b);
+				a.addAll(c);
+				
+				for (Skill skill : a) {
+					System.out.println(skill.getName());
+				}
+				
+			} else if (input1==2) {
+				List<Skill> a = si.getActionSkillList(enemy.getId(), user.getInventory());
+				for (Skill skill : a) {
+					System.out.println(skill.getName());
+				}
+			} else if (input1==3) {
+				
+			} else {
+				System.out.println("잘못 선택했서 .... 다시하장");
+				i--;
+				continue;
+			}
 
-			// 스킬선택 TODO
 			for (int j = 0; j < useSkill.size(); j++) {
 				System.out.print(String.valueOf(j + 1) + ". " + useSkill.get(j).name);
 				System.out.println("(성공률: " + calcHit(useSkill.get(j).aim) + ")");
@@ -351,10 +371,9 @@ public class Battle_Algo {
 		Enemy_Dao ed = new Enemy_Dao();
 		SaveInfo user = al.setUserData();
 
-		HashMap<Integer, Enemy> EnemyMap = ed.getEnemys();
-
 		while (true) {
-			boolean result = al.battleLogic(EnemyMap.get(10), user);
+			Enemy enemy = ed.selectRandomEnemy();
+			boolean result = al.battleLogic(ed.selectRandomEnemy(), user);
 			if (!result)
 				return;
 		}
