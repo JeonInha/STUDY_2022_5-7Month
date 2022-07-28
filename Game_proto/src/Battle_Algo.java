@@ -1,4 +1,5 @@
 import java.util.*;
+import java.util.Map.Entry;
 
 public class Battle_Algo {
 	Random random = new Random();
@@ -8,8 +9,8 @@ public class Battle_Algo {
 	}
 
 	int calcGetAway(int turn, int skillAim, Enemy enemy) {
-		return (20 + (turn) * 5 + skillAim + (enemy.getIniVar()-1)*10);
-		// 25 - 30 - 35
+		return (20 + (turn) * 5 + skillAim + (enemy.getIniVar()-1)*12);
+		// 25 - 30 - 35 인데 이제 
 	}
 
 	String enemyStatus(Enemy enemy) {
@@ -39,44 +40,59 @@ public class Battle_Algo {
 		}
 	}
 
-	int enemyAction(Enemy enemy) {
+	Map<Integer, String> enemyAction(Enemy enemy) {
 		int userDamage = 0;
+		String script = null;
 		int randomDice = (int) (random.nextDouble() * 100);
+		Map<Integer, String> result = new HashMap<>();
 
 		if (enemy.getIniVar() < 1) {
 			if (randomDice > 96) {
-				System.out.println("크리티컬! " + enemy.getName() + "에게 세게 공격당했다.");
+				script = "크리티컬! " + enemy.getName() + "에게 세게 공격당했다.";
+				System.out.println(script);
 				userDamage = 2 + enemy.getPower();
 			} else if (randomDice > 30) {
-				System.out.println(enemy.getName() + "에게 공격당했다.");
+				script = enemy.getName() + "에게 공격당했다.";
+				System.out.println(script);
 				userDamage = 1 + enemy.getPower();
+				
 			} else {
-				System.out.println(enemy.getName() + "의 공격을 피했다.");
+				script = enemy.getName() + "의 공격을 피했다.";
+				System.out.println(script);
 			}
 
 		} else if (enemy.getIniVar() == 1) {
 			if (randomDice > 50) {
-				System.out.println(enemy.getName() + "에게 공격당했다.");
+				script = enemy.getName() + "에게 공격당했다.";
+				System.out.println(script);
 				userDamage = 1 + enemy.getPower();
 			} else {
-				System.out.println(enemy.getName() + "의 공격을 피했다.");
+				script = enemy.getName() + "의 공격을 피했다.";
+				System.out.println(script);
 			}
 
 		} else {
-			System.out.println(enemy.getName() + "는 상황을 보고 있다.");
+			script = enemy.getName() + "는 상황을 보고 있다.";
+			System.out.println(script);
 		}
-		return userDamage;
+		result.put(userDamage, script);
+		return result;
 	}
 
 	int[] letsUseSkill(Enemy enemy, Skill skill) {
-		int[] result = new int[3];
+		int[] result = new int[4];
 
 		if (skill.getType() == Skill.SKILL_TYPE_ACTION) {
 			result = actionSkill(skill);
 		} else if (skill.getType() == Skill.SKILL_TYPE_HEIST) {
 			result = heistSkill(enemy, skill);
-		} else {
+		} else if (skill.getType()==Skill.SKILL_TYPE_HIT) {
 			result = hitSkill(skill);
+		} else if (skill.getType()==Skill.SKILL_TYPE_SPECIAL) {
+			result[0] = 30;
+			result[1] = 0;
+			result[2] = 0;
+			result[3] = 1;
 		}
 
 		System.out.println("확인용:::");
@@ -91,10 +107,11 @@ public class Battle_Algo {
 
 	int[] hitSkill(Skill skill) {
 		System.out.println("공격스킬 실행");
-		int[] result = new int[3];
+		int[] result = new int[4];
 		int damage = 0;
 		int warning = 0;
 		int userDamage = 0;
+		int resultScript = 0;
 
 		int calcHit = calcHit(skill.aim);
 		int dice = (int) (random.nextDouble() * 100);
@@ -104,31 +121,37 @@ public class Battle_Algo {
 			System.out.println(skill.getFumbleScript());
 			warning -= 1;
 			userDamage -= 0;
+			resultScript = 4;
 		} else if (dice < 5) {
 			System.out.println(skill.getCriticalScript());
 			damage -= 2;
 			damage -= skill.power;
+			resultScript = 1;
 		} else if (dice < calcHit) {
 			System.out.println(skill.getSucessScript());
 			damage -= 1;
 			damage -= skill.power;
+			resultScript = 2;
 		} else {
 			System.out.println(skill.getFailScript());
+			resultScript = 3;
 		}
 		warning -= 1;
 
 		result[0] = warning;
 		result[1] = damage;
 		result[2] = userDamage;
+		result[3] = resultScript;
 		return result;
 	}
 
 	int[] actionSkill(Skill skill) {
 		System.out.println("액션스킬 실행");
-		int[] result = new int[3];
+		int[] result = new int[4];
 		int damage = 0;
 		int warning = 0;
 		int userDamage = 0;
+		int resultScript = 0;
 
 		int calcHit = calcHit(skill.aim);
 		int dice = (int) (random.nextDouble() * 100);
@@ -137,28 +160,34 @@ public class Battle_Algo {
 
 		if (dice > 95) {
 			System.out.println(skill.getFumbleScript());
+			resultScript = 4;
 			warning -= 1;
 		} else if (dice < 5) {
 			System.out.println(skill.getCriticalScript());
+			resultScript = 1;
 			warning += 2;
 		} else if (dice < calcHit) {
 			System.out.println(skill.getSucessScript());
+			resultScript = 2;
 			warning += 1;
 		} else {
 			System.out.println(skill.getFailScript());
+			resultScript = 3;
 		}
 		result[0] = warning;
 		result[1] = damage;
 		result[2] = userDamage;
+		result[3] = resultScript;
 		return result;
 	}
 
 	int[] heistSkill(Enemy enemy, Skill skill) {
 		System.out.println("기습스킬 실행");
-		int[] result = new int[3];
+		int[] result = new int[4];
 		int damage = 0;
 		int warning = 0;
 		int userDamage = 0;
+		int resultScript = 0;
 
 		int calcHit = calcHit(skill.aim);
 		int dice = (int) (random.nextDouble() * 100);
@@ -169,18 +198,22 @@ public class Battle_Algo {
 			System.out.println(skill.getFumbleScript());
 			warning -= 1;
 			userDamage -= 1;
+			resultScript = 4;
 
 		} else if (dice < 5) {
 			System.out.println(skill.getCriticalScript());
 			damage = -(enemy.getIniVar() + 30);
 			damage -= skill.power;
+			resultScript = 1;
 
 		} else if (dice < calcHit) {
 			System.out.println(skill.getSucessScript());
 			damage = -(enemy.getIniVar() - 1);
 			damage -= skill.power;
+			resultScript = 2;
 		} else {
 			System.out.println(skill.getFailScript());
+			resultScript = 3;
 		}
 
 		warning -= 2;
@@ -188,6 +221,7 @@ public class Battle_Algo {
 		result[0] = warning;
 		result[1] = damage;
 		result[2] = userDamage;
+		result[3] = resultScript;
 		return result;
 	}
 
@@ -199,6 +233,7 @@ public class Battle_Algo {
 		Item item3 = new Item(9, 1, 1); // 육포
 		Item item4 = new Item(8, 1, 1); // 육포
 		Item item5 = new Item(14, 1, 1); // 육포
+		Item item6 = new Item(5, 1, 1); // 육포
 
 		List<Item> inven = new ArrayList<>();
 		inven.add(item1);
@@ -206,6 +241,7 @@ public class Battle_Algo {
 		inven.add(item3);
 		inven.add(item4);
 		inven.add(item5);
+		inven.add(item6);
 
 		user.setInventory(inven);
 
@@ -301,7 +337,15 @@ public class Battle_Algo {
 
 			// 상대의 행동 출력
 			System.out.println(enemy.getName() + "이 행동한다.");
-			int d = enemyAction(enemy);
+			
+			int d = 0;
+			String s = null;
+			Map<Integer, String> map = enemyAction(enemy);
+			for (Entry<Integer, String> entry : map.entrySet()) {
+				d = entry.getKey();
+				s = entry.getValue();
+			}
+			System.out.println(s);
 			user.setHp(user.getHp() - d);
 
 			// 특수종료 확인

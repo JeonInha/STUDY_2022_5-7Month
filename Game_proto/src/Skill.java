@@ -12,9 +12,11 @@ public class Skill {
 	String failScript;
 	String fumbleScript;
 	
+	static final int SKILL_TYPE_ACTION = 1;
 	static final int SKILL_TYPE_HIT = 2;
 	static final int SKILL_TYPE_HEIST = 3;
-	static final int SKILL_TYPE_ACTION = 1;
+	static final int SKILL_TYPE_TRAP = 4;
+	static final int SKILL_TYPE_SPECIAL = 5;
 	
 	public int getId() {
 		return id;
@@ -91,5 +93,16 @@ public class Skill {
 		this.failScript = failScript;
 		this.fumbleScript = fumbleScript;
 	}
-
+	
+	public String getSkillScript(int i) {
+		if (i==4) {
+			return fumbleScript;
+		} else if (i==1) {
+			return criticalScript;
+		} else if (i==2) {
+			return sucessScript;
+		} else {
+			return failScript;
+		}
+	}
 }

@@ -78,7 +78,7 @@ public class SkillImpl {
 	      
 	      String skill = "SELECT * FROM busan.skill WHERE (floor(skill_id / 100 % 10) = " + (int)(enemyId / 10)
 	            + " or floor(skill_id / 100 % 10) = 0)"
-	            + " AND floor(skill_id / 1000) = 1" 
+	            + " AND floor(skill_id / 1000) in (1, 4, 5)" 
 	            + " AND (skill_needItem is null or skill_needItem in ( " + itemInt
 	            + " ));";
 	      

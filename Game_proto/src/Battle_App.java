@@ -1,19 +1,61 @@
-import java.awt.CardLayout;
-import java.awt.Color;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.awt.*;
+import java.awt.event.*;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
+import java.util.Map.Entry;
+
 import javax.swing.*;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
+
+class TSPanel extends JPanel {
+	TSPanel() {
+		this.setOpaque(false);
+	}
+}
+
+class BattleTextArea extends JTextArea {
+	
+	public BattleTextArea(int arg0, int arg1) {
+		super(arg0, arg1);
+		// row, column
+		this.setBackground(Color.white);
+		
+		EmptyBorder padding = new EmptyBorder(20, 20, 20, 20);
+		LineBorder borderLine = new LineBorder(Color.black, 2);
+		CompoundBorder comBorder = new CompoundBorder(borderLine, padding);
+		this.setBorder(comBorder);
+		
+		this.setFont(new Font("맑은 고딕", Font.PLAIN, 20));
+		
+		this.setEditable(false);
+	}
+
+	BattleTextArea() {
+		// 배경색
+		this.setBackground(Color.white);
+		
+		// Border, padding
+		EmptyBorder padding = new EmptyBorder(20, 20, 20, 20);
+		LineBorder borderLine = new LineBorder(Color.black, 2);
+		CompoundBorder comBorder = new CompoundBorder(borderLine, padding);
+		this.setBorder(comBorder);
+		
+		// 폰트
+		this.setFont(new Font("맑은 고딕", Font.PLAIN, 20));
+		
+		// 텍스트 편집가능여부
+		this.setEditable(false);
+	}
+}
 
 public class Battle_App extends JFrame {
 	JPanel pnl = new JPanel();
-	JPanel enemyBox = new JPanel();
-	JPanel middleBox = new JPanel();
-	JPanel userBox = new JPanel();
-	JPanel footerBox = new JPanel();
+	JPanel enemyBox = new TSPanel();
+	JPanel middleBox = new TSPanel();
+	JPanel userBox = new TSPanel();
+	JPanel footerBox = new TSPanel();
 
 	boolean isGetAway = false;
 	boolean isHappy = false;
@@ -22,12 +64,58 @@ public class Battle_App extends JFrame {
 
 	List<Skill> useSkillList = new ArrayList<>();
 	Map<Integer, JButton> useSkillBtnList = new HashMap<>();
+	
+	String getBattleEndScript(Enemy enemy) {
+		String result;
+		Random random = new Random();
+		BattleOverDao bod = new BattleOverDao();
+		if (isGetAway) {
+			result = bod.getRunAwayResult(enemy.getId());
+
+			// 상대 죽이기 // win
+		} else if (isDead) {
+			result = bod.getWinResult(enemy.getId());
+			if (enemy.getDropItem() != null) {
+				int indx = random.nextInt(enemy.getDropItem().size());
+				if (enemy.getDropItem().size() > 0) {
+					result = result.concat("\n떨어트린 아이템: " + enemy.getDropItem().get(indx));
+				} else {
+					result = result.concat("\n로직실수 여기지롱~~~~~~~");
+				}
+			} else {
+				result = result.concat("\n적의 시체를 뒤졌지만 쓸만한 것은 얻을 수 없었다.");
+			}
+
+			// 상대 협상 굿엔딩 //
+		} else if (isHappy || enemy.getIniVar() == 3) {
+			result = bod.getFriendResult(enemy.getId());
+			if (enemy.getDropItem() != null) {
+				int indx = random.nextInt(enemy.getDropItem().size());
+				if (enemy.getDropItem().size() > 0) {
+					result = result.concat("\n떨어트린 아이템: " + enemy.getDropItem().get(indx));
+				// 
+				} else {
+					result = result.concat("\n로직실수 여기지롱~~~~~~~");
+				}
+			} else {
+				result = result.concat("\n적이 떠난 자리에는 먼지만 날렸다.");
+			}
+			// 우리가 죽는 엔딩
+		} else if (enemy.getIniVar() <= 0) {
+			result = bod.getLoseResult(enemy.getId());
+
+			// 아무것도 없는 엔딩
+		} else {
+			result = bod.getNomalResult(enemy.getId());
+		}
+		return result;
+	}
 
 	public void setUseSkillBtnList(List<Skill> useSkillList) {
 		useSkillBtnList = new HashMap<>();
 		for (int i = 0; i < useSkillList.size(); i++) {
 			Skill skill = useSkillList.get(i);
-			JButton btn = new JButton(i + ". " + skill.getName());
+			JButton btn = new JButton(skill.getName());
 			useSkillBtnList.put(skill.getId(), btn);
 		}
 	}
@@ -47,19 +135,20 @@ public class Battle_App extends JFrame {
 	}
 
 	Battle_App(Enemy enemy, SaveInfo user) {
+		pnl.setBackground(Color.pink);	
 		Battle_Algo ba = new Battle_Algo();
 		SkillImpl si = new SkillImpl();
-		BattleOverDao bod = new BattleOverDao();
+		int enemyFullLife = enemy.getLife();
 
 		phaseCountNum = 1;
 
 		BoxLayout pnlLayout = new BoxLayout(pnl, BoxLayout.Y_AXIS);
 		pnl.setLayout(pnlLayout);
 
-		JPanel enemyBox = new JPanel();
-		JPanel middleBox = new JPanel();
-		JPanel userBox = new JPanel();
-		JPanel footerBox = new JPanel();
+		JPanel enemyBox = new TSPanel();
+		JPanel middleBox = new TSPanel();
+		JPanel userBox = new TSPanel();
+		JPanel footerBox = new TSPanel();
 
 		pnl.add(enemyBox);
 		pnl.add(middleBox);
@@ -70,7 +159,7 @@ public class Battle_App extends JFrame {
 		JLabel enemyImg = new JLabel("[적 이미지]");
 		enemyBox.add(enemyImg);
 		Map<Integer, JLabel> enemyLifeImg = new HashMap<>();
-		for (int i = 0; i < enemy.getLife(); i++) {
+		for (int i = 0; i < enemyFullLife; i++) {
 			JLabel a = new JLabel("♥");
 			enemyLifeImg.put(i, a);
 			enemyBox.add(a);
@@ -89,13 +178,19 @@ public class Battle_App extends JFrame {
 			userLifeImg.put(i, a);
 			userBox.add(a);
 		}
+		for (int i = user.getHp(); i < user.FULL_HP; i++) {
+			JLabel a = new JLabel("♡");
+			userLifeImg.put(i, a);
+			userBox.add(a);
+		}
+
 		JLabel userImg = new JLabel("[유저 이미지]");
 		userBox.add(userImg);
 
 		///////////////////// footerBox
 
 		// 행동 선택 / 버튼 패널 (A
-		JPanel chooseAct = new JPanel();
+		JPanel chooseAct = new TSPanel();
 
 		JButton attackBtn = new JButton("공격");
 		JButton actionBtn = new JButton("행동");
@@ -105,9 +200,9 @@ public class Battle_App extends JFrame {
 		chooseAct.add(runAwayBtn);
 
 		// 스킬 선택 / 스킬 패널(B
-		JPanel chooseSkill = new JPanel();
+		JPanel chooseSkill = new TSPanel();
 
-		JPanel skillBox = new JPanel();
+		JPanel skillBox = new TSPanel();
 		BoxLayout skillBoxLayout = new BoxLayout(skillBox, BoxLayout.Y_AXIS);
 		skillBox.setLayout(skillBoxLayout);
 
@@ -116,12 +211,12 @@ public class Battle_App extends JFrame {
 		chooseSkill.add(backBtn);
 
 		// 결과 출력 / 스킬 결과 패널 (C
-		JPanel skillResult = new JPanel();
+		JPanel skillResult = new TSPanel();
 		BoxLayout skillResultLayout = new BoxLayout(skillResult, BoxLayout.Y_AXIS);
 		skillResult.setLayout(skillResultLayout);
 
-		JLabel focusUser = new JLabel("::우리의 공격::");
-		JLabel printUserResult = new JLabel();
+		JLabel focusUser = new JLabel("::우리의 행동::");
+		JTextArea printUserResult = new BattleTextArea();
 		JButton nextBtnC = new JButton("다음");
 
 		skillResult.add(focusUser);
@@ -129,12 +224,12 @@ public class Battle_App extends JFrame {
 		skillResult.add(nextBtnC);
 
 		// 결과 출력 / 적 행동 결과 패널 (D
-		JPanel enemyResult = new JPanel();
+		JPanel enemyResult = new TSPanel();
 		BoxLayout enemyResultLayout = new BoxLayout(enemyResult, BoxLayout.Y_AXIS);
 		enemyResult.setLayout(enemyResultLayout);
 
-		JLabel focusEnemy = new JLabel("::적의 공격::");
-		JLabel printEnemyResult = new JLabel();
+		JLabel focusEnemy = new JLabel("::적의 행동::");
+		JTextArea printEnemyResult = new BattleTextArea();
 		JButton nextBtnD = new JButton("다음");
 
 		enemyResult.add(focusEnemy);
@@ -142,7 +237,9 @@ public class Battle_App extends JFrame {
 		enemyResult.add(nextBtnD);
 
 		// 결과 출력 / 전투 결과 패널 (E
-		JPanel battleResult = new JPanel();
+		JPanel battleResult = new TSPanel();
+		JTextArea battleRPrint = new BattleTextArea();
+		battleResult.add(battleRPrint);
 
 		// footer cardLayout
 		CardLayout card = new CardLayout();
@@ -156,6 +253,63 @@ public class Battle_App extends JFrame {
 
 		////////////////////// ActionListener
 
+		/////////////////// 스킬 동작 버튼
+		ActionListener skillact = new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JButton useSkillBtn = (JButton) e.getSource();
+				int skID = 0;
+				Skill thisSkill = null;
+				for (Integer key : useSkillBtnList.keySet()) {
+					if (useSkillBtnList.get(key).equals(useSkillBtn)) {
+						skID = key;
+						break;
+					}
+				}
+				for (Skill skil : useSkillList) {
+					if (skil.getId() == skID) {
+						thisSkill = skil;
+						break;
+					}
+				}
+				// 버튼에 따른 내 스킬 객체 찾는 로직
+
+				// 스킬 실행
+				System.out.println(thisSkill.getName());
+				int[] result = ba.letsUseSkill(enemy, thisSkill);
+
+				// 결과창 보여주기
+				printUserResult.setText(thisSkill.getName() + "\n" + thisSkill.getSkillScript(result[3]));
+
+				enemy.setIniVar(enemy.getIniVar() + result[0]);
+				enemy.setLife(enemy.getLife() + result[1]);
+				user.setHp(user.getHp() + result[2]);
+
+				if (enemy.getLife() < 1) {
+					enemy.setLife(0);
+				}
+				if (user.getHp() < 1) {
+					user.setHp(0);
+				}
+
+				for (int i = 0; i < enemy.getLife(); i++) {
+					enemyLifeImg.get(i).setText("♥");
+				}
+				int ii = enemyFullLife;
+				for (int i = enemy.getLife(); i < ii; i++) {
+					enemyLifeImg.get(i).setText("♡");
+				}
+				for (int i = 0; i < user.getHp(); i++) {
+					userLifeImg.get(i).setText("♥");
+				}
+				for (int i = user.getHp(); i < user.FULL_HP; i++) {
+					userLifeImg.get(i).setText("♡");
+				}
+				// 넘기기
+				card.next(footerBox);
+			}
+		};
+
 		ActionListener chooseActAct = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -167,27 +321,30 @@ public class Battle_App extends JFrame {
 					useSkillList = si.getAttckSkillList(enemy.getId(), user.getInventory());
 					useSkillList.addAll(si.getHeistSkillList(enemy.getId(), user.getInventory()));
 					setUseSkillBtnList(useSkillList);
-
 					addBtnToPnl(useSkillBtnList, skillBox);
+
+					for (Integer key : useSkillBtnList.keySet()) {
+						useSkillBtnList.get(key).addActionListener(skillact);
+					}
 					card.next(footerBox);
 
 				} else if (eBtn.getText().equals("행동")) {
 					useSkillList = si.getActionSkillList(enemy.getId(), user.getInventory());
 					setUseSkillBtnList(useSkillList);
-
 					addBtnToPnl(useSkillBtnList, skillBox);
+
+					for (Integer key : useSkillBtnList.keySet()) {
+						useSkillBtnList.get(key).addActionListener(skillact);
+					}
 					card.next(footerBox);
 				} else if (eBtn.getText().equals("도망")) {
-					Boolean isGetAway = ba.runAway(phaseCountNum, enemy);
-
+					isGetAway = ba.runAway(phaseCountNum, enemy);
 					if (isGetAway) {
-						printUserResult.setText("<html><p>도망치기를 시도했다.<br>. . .<br>도망에 성공했다!<p><html>");
-						isGetAway = true;
-						card.show(footerBox, "C");
+						printUserResult.setText("도망치기를 시도했다.\n도주확률: "+ba.calcGetAway(phaseCountNum, 0, enemy)+"\n. . .\n도망에 성공했다!");
 					} else {
-						printUserResult.setText("<html><p>도망치기를 시도했다.<br>. . .<br>도망에 실패했다!<p><html>");
-						card.show(footerBox, "C");
+						printUserResult.setText("도망치기를 시도했다.\n도주확률: "+ba.calcGetAway(phaseCountNum, 0, enemy)+"\n. . .\n도망에 실패했다!");
 					}
+					card.show(footerBox, "C");
 				}
 			}
 		};
@@ -198,7 +355,7 @@ public class Battle_App extends JFrame {
 
 		ActionListener getBackPanelAct = new ActionListener() { // 뒤로가기 버튼
 			@Override
-			public void actionPerformed(ActionEvent arg0) {
+			public void actionPerformed(ActionEvent e) {
 				card.previous(footerBox);
 			}
 		};
@@ -206,43 +363,81 @@ public class Battle_App extends JFrame {
 		backBtn.addActionListener(getBackPanelAct);
 
 		// C 다음으로 넘어가는 버튼::
-		// TODO
 		ActionListener nextBtnCact = new ActionListener() {
 			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				if (enemy.getLife() <= 0) {
+			public void actionPerformed(ActionEvent e) {
+				/// 전투 조기종료인지 확인::
+				if (enemy.getLife() == 0) {
 					isDead = true;
 				}
 				if (enemy.getIniVar() >= 4) {
 					isHappy = true;
 				}
+				// 전투 지속인지 종료인지 판별해 알맞은 화면으로 넘김
 				if (isDead || isHappy || isGetAway) {
+					String result = getBattleEndScript(enemy);
+
+					////////////// 화면 구현
+					battleRPrint.setText(result);
+					enemyStatus.setText("------------------");
 					card.show(footerBox, "E");
 				} else {
+					// 전투 지속일 때만 적 행동 로직 진행
+					int d = 0;
+					String s = null;
+					Map<Integer, String> map = ba.enemyAction(enemy);
+					for (Entry<Integer, String> entry : map.entrySet()) {
+						d = entry.getKey();
+						s = entry.getValue();
+					}
+					System.out.println(s);
+					user.setHp(user.getHp() - d);
+
+					// 적 행동 화면 반영 - footerBox
+					printEnemyResult.setText(s);
+
+					// 적행동 화면 반영 - user::
+
+					if (user.getHp() < 1) {
+						user.setHp(0);
+					}
+
+					for (int i = 0; i < user.getHp(); i++) {
+						userLifeImg.get(i).setText("♥");
+					}
+					for (int i = user.getHp(); i < user.FULL_HP; i++) {
+						userLifeImg.get(i).setText("♡");
+					}
 					card.show(footerBox, "D");
 				}
 			}
 		};
 
 		// D 다음으로 넘어가는 버튼::
-		// TODO
 		ActionListener nextBtnDact = new ActionListener() {
 			@Override
-			public void actionPerformed(ActionEvent arg0) {
+			public void actionPerformed(ActionEvent e) {
+				String result = getBattleEndScript(enemy);
+
+				////////////// 화면 구현
+				enemyStatus.setText("------------------");
+				battleRPrint.setText(result);
+				
+				///////////// 턴수 확인해서 A로 갈지 E로 갈지 정하는 로직
 				if (user.getHp() <= 0 || phaseCountNum >= 3) {
 					card.show(footerBox, "E");
 				} else {
 					phaseCountNum++;
+					phaseCount.setText(phaseCountNum + "턴    ");
+					enemyStatus.setText(ba.enemyStatus(enemy));
 					card.show(footerBox, "A");
 				}
 			}
 		};
-		
 		nextBtnC.addActionListener(nextBtnCact);
 		nextBtnD.addActionListener(nextBtnDact);
 
 		//////////////////////////// etc
-
 		add(pnl);
 		setSize(800, 900);
 	}
@@ -254,7 +449,5 @@ public class Battle_App extends JFrame {
 		Enemy enemy = ed.selectRandomEnemy();
 
 		new Battle_App(enemy, user).setVisible(true);
-
 	}
-
 }
