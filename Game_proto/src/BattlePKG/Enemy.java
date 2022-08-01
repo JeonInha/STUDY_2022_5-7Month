@@ -1,7 +1,7 @@
 package BattlePKG;
 import java.util.List;
 
-class Enemy {
+public class Enemy {
 	int id;
 	String name;
 	int life;

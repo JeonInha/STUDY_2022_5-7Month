@@ -52,14 +52,14 @@ public class SkillImpl {
 		return skill;
 	}
 	
-	public String stringItem(List<Item> item) {
+	public String stringItem(List<gogo0801.Item> list) {
 		List<Integer> itemIDList = new ArrayList<>();
-		for (Item i : item) {
+		for (gogo0801.Item i : list) {
 			int a = i.getItem_id();
 			itemIDList.add(a);
 		}
 		String itemInt = "";
-		for (int i=0; i<item.size(); i++) {
+		for (int i=0; i<list.size(); i++) {
 			if (i==0) {
 				itemInt = itemInt.concat(String.valueOf(itemIDList.get(i)));
 			} else {
@@ -72,10 +72,10 @@ public class SkillImpl {
 	
 	//////
 	// 액션 스킬
-	   public List<Skill> getActionSkillList(int enemyId, List<Item> item) {
+	   public List<Skill> getActionSkillList(int enemyId, List<gogo0801.Item> list) {
 	      List<Skill> attackSkill = new ArrayList<>();
 	      
-	      String itemInt = stringItem(item);
+	      String itemInt = stringItem(list);
 	      
 	      String skill = "SELECT * FROM busan.skill WHERE (floor(skill_id / 100 % 10) = " + (int)(enemyId / 10)
 	            + " or floor(skill_id / 100 % 10) = 0)"
@@ -98,7 +98,7 @@ public class SkillImpl {
 	   }
 	   
 	   // 어택
-	   public List<Skill> getAttckSkillList(int enemyId, List<Item> item) { // 공격 스킬 꺼내는 메소드
+	   public List<Skill> getAttckSkillList(int enemyId, List<gogo0801.Item> item) { // 공격 스킬 꺼내는 메소드
 	      List<Skill> attackSkill = new ArrayList<>();
 	      
 	      String itemInt = stringItem(item);
@@ -124,10 +124,10 @@ public class SkillImpl {
 	   }
 	   
 	   // 기습
-	   public List<Skill> getHeistSkillList(int enemyId, List<Item> item) { // 기습
+	   public List<Skill> getHeistSkillList(int enemyId, List<gogo0801.Item> list) { // 기습
 	      List<Skill> attackSkill = new ArrayList<>();
 	      
-	      String itemInt = stringItem(item);
+	      String itemInt = stringItem(list);
 	      
 	      String skill = "SELECT * FROM busan.skill WHERE (floor(skill_id / 100 % 10) = " + (int)(enemyId / 10)
 	            + " or floor(skill_id / 100 % 10) = 0)"

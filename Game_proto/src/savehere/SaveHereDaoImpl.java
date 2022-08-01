@@ -54,13 +54,13 @@ public class SaveHereDaoImpl implements SaveHereDao {
 	}
 
 	@Override
-	public String read(String userId) throws SQLException {
+	public SaveHere read(String userId) throws SQLException {
 		String query = "SELECT * FROM savehere WHERE userId = ?";
 		
 		Connection conn = null;
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
-		String result = null;
+		SaveHere user = null;
 		
 		try {
 			conn = BusanUtil.getConnection();
@@ -68,17 +68,14 @@ public class SaveHereDaoImpl implements SaveHereDao {
 			pstmt.setString(1, userId);
 			rs = pstmt.executeQuery();
 			while (rs.next()) {
-			  result =	rs.getString("storyPath1") + ", " + rs.getString("storyPath2");
-				
-				return result;
+			  user = resultMapping(rs);
 			}
-			
+			return user;
 		} finally {
 			BusanUtil.closeRS(rs);
 			BusanUtil.closeStmt(pstmt);
 			BusanUtil.closeConn(conn);
 		}
-		return null;
 	}
 		
 	

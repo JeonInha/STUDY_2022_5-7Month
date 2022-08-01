@@ -6,7 +6,7 @@ import java.util.List;
 public interface SaveHereDao {
 	
 	   List<SaveHere> read() throws SQLException;
-	   String read(String userId) throws SQLException;
+	   SaveHere read(String userId) throws SQLException;
 	   String readEnd(String ending_Name) throws SQLException;
 
 }

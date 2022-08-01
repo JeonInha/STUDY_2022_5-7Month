@@ -138,7 +138,7 @@ public class Enemy_Dao {
 	}
 	
 	// 이거 완성메소드 // 
-	Enemy selectRandomEnemy(int dn) {
+	public Enemy selectRandomEnemy(int dn) {
 		int id = randomEnemyID();
 		Enemy enemy = selectEnemyUseID(id);
 		enemy = ifDayOrNight(dn, enemy);

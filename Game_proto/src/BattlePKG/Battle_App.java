@@ -1,16 +1,20 @@
 package BattlePKG;
+
 import java.awt.*;
 import java.awt.event.*;
 import java.net.URL;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.*;
 import java.util.List;
 import java.util.Map.Entry;
 
 import javax.swing.*;
-import javax.swing.border.CompoundBorder;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.LineBorder;
+import javax.swing.border.*;
 import de.*;
+import gogo0801.*;
+import kr.co.green.BusanUtil;
+import statistics.AchievementsTest;
 
 class TSPanel extends JPanel {
 	TSPanel() {
@@ -19,53 +23,38 @@ class TSPanel extends JPanel {
 }
 
 class BattleTextArea extends JTextArea {
-	
-	public BattleTextArea(int arg0, int arg1) {
-		super(arg0, arg1);
-		// row, column
-		this.setBackground(Design.LWhite);
-		
-		EmptyBorder padding = new EmptyBorder(20, 20, 20, 20);
-		LineBorder borderLine = new LineBorder(Design.SBlack, 2);
-		CompoundBorder comBorder = new CompoundBorder(borderLine, padding);
-		this.setBorder(comBorder);
-		
-		this.setFont(Design.MSFont);
-		
-		this.setEditable(false);
-	}
-
 	BattleTextArea() {
 		// 배경색
 		this.setBackground(Design.LSkyblue);
-		
+
 		// Border, padding
 		EmptyBorder padding = new EmptyBorder(20, 20, 20, 20);
 		LineBorder borderLine = new LineBorder(Design.SBlack, 2);
 		CompoundBorder comBorder = new CompoundBorder(borderLine, padding);
 		this.setBorder(comBorder);
-		
+
 		// 폰트
 		this.setFont(Design.MSFont);
-		
+
 		// 텍스트 편집가능여부
 		this.setEditable(false);
 	}
 }
 
-public class Battle_App extends JFrame {
+public class Battle_App extends JPanel {
+	UserInfo useruser = new UserInfo();
 	JPanel pnl = new JPanel();
 	JPanel enemyBox = new TSPanel();
 	JPanel middleBox = new TSPanel();
 	JPanel userBox = new TSPanel();
 	JPanel footerBox = new TSPanel();
 	JButton endBtn = new ColorButton("전투 종료");
-
+	
 	boolean isGetAway = false;
 	boolean isHappy = false;
 	boolean isDead = false;
 	int phaseCountNum;
-	
+
 	//////////////////////////////////////////
 	// img
 	Toolkit kit = Toolkit.getDefaultToolkit();
@@ -74,7 +63,7 @@ public class Battle_App extends JFrame {
 	URL heart_full = Battle_App.class.getClassLoader().getResource("Enemy/heart_full.png");
 	URL middle_L = Battle_App.class.getClassLoader().getResource("Enemy/middle_L.png");
 	URL middle_R = Battle_App.class.getClassLoader().getResource("Enemy/middle_R.png");
-	
+
 	ImageIcon weImg = new ImageIcon(kit.getImage(we));
 	ImageIcon heart_emptyImg = new ImageIcon(kit.getImage(heart_empty));
 	ImageIcon heart_fullImg = new ImageIcon(kit.getImage(heart_full));
@@ -84,11 +73,14 @@ public class Battle_App extends JFrame {
 
 	List<Skill> useSkillList = new ArrayList<>();
 	Map<Integer, JButton> useSkillBtnList = new HashMap<>();
-	
-	String getBattleEndScript(Enemy enemy) {
+
+	Map<String, Integer> getBattleEndScript(Enemy enemy, UserInfo user) {
 		String result;
+		Integer a = 0;
 		Random random = new Random();
 		BattleOverDao bod = new BattleOverDao();
+		Map<String, Integer> map = new HashMap<>();
+
 		if (isGetAway) {
 			result = bod.getRunAwayResult(enemy.getId());
 
@@ -98,7 +90,22 @@ public class Battle_App extends JFrame {
 			if (enemy.getDropItem() != null) {
 				int indx = random.nextInt(enemy.getDropItem().size());
 				if (enemy.getDropItem().size() > 0) {
-					result = result.concat("\n떨어트린 아이템: " + enemy.getDropItem().get(indx));
+					
+					ItemDao id = new ItemDao();
+					String itemName = "";
+					Connection conn = null;
+					
+					try {
+						conn = BusanUtil.getConnection();
+						itemName = itemName.concat(id.getItemName(conn, Integer.valueOf(enemy.getDropItem().get(indx))));
+					} catch (SQLException e) {
+						e.printStackTrace();
+					} finally {
+						BusanUtil.closeConn(conn);
+					}
+					
+					result = result.concat("\n떨어트린 아이템: " + itemName);
+					a = Integer.valueOf(enemy.getDropItem().get(indx));
 				} else {
 					result = result.concat("\n로직실수 여기지롱~~~~~~~");
 				}
@@ -112,8 +119,24 @@ public class Battle_App extends JFrame {
 			if (enemy.getDropItem() != null) {
 				int indx = random.nextInt(enemy.getDropItem().size());
 				if (enemy.getDropItem().size() > 0) {
-					result = result.concat("\n떨어트린 아이템: " + enemy.getDropItem().get(indx));
-				// 
+					
+					ItemDao id = new ItemDao();
+					String itemName = "";
+					Connection conn = null;
+					
+					try {
+						conn = BusanUtil.getConnection();
+						itemName = itemName.concat(id.getItemName(conn, Integer.valueOf(enemy.getDropItem().get(indx))));
+					} catch (SQLException e) {
+						e.printStackTrace();
+					} finally {
+						BusanUtil.closeConn(conn);
+					}
+					
+					result = result.concat("\n떨어트린 아이템: " + itemName);
+
+					a = Integer.valueOf(enemy.getDropItem().get(indx));
+
 				} else {
 					result = result.concat("\n로직실수 여기지롱~~~~~~~");
 				}
@@ -121,23 +144,33 @@ public class Battle_App extends JFrame {
 				result = result.concat("\n적이 떠난 자리에는 먼지만 날렸다.");
 			}
 			// 우리가 죽는 엔딩
-		} else if (enemy.getIniVar() <= 0) {
+		} else if (enemy.getIniVar() <= 0 || user.getHp()<=0) {
 			result = bod.getLoseResult(enemy.getId());
 
 			// 아무것도 없는 엔딩
 		} else {
 			result = bod.getNomalResult(enemy.getId());
 		}
-		return result;
+
+		map.put(result, a);
+
+		return map;
 	}
 
 	public void setUseSkillBtnList(List<Skill> useSkillList) {
 		useSkillBtnList = new HashMap<>();
+		Battle_Algo ba = new Battle_Algo();
+
 		for (int i = 0; i < useSkillList.size(); i++) {
 			Skill skill = useSkillList.get(i);
-			JButton btn = new JButton(skill.getName());
+			JButton btn = new SkillBtn(skill.getName()+"                ");
+			btn.setToolTipText("<html><p>" + "명중률: " + ba.getSkillAim(skill) + "<br>공격력: " + ba.getSkillPOW(skill)
+					+ "<br>필요 아이템: " + ba.getSkillNeed(skill) + "</html></p>");
+			ToolTipManager m = ToolTipManager.sharedInstance(); // 툴팁 여는 시간 조정 위해 객체 생성
+			m.setInitialDelay(0); // 초기 툴팁 출력 지연시간 0초 설정
 			useSkillBtnList.put(skill.getId(), btn);
 		}
+
 	}
 
 	public void addBtnToPnl(Map<Integer, JButton> btnList, JPanel pnl) {
@@ -145,26 +178,32 @@ public class Battle_App extends JFrame {
 			pnl.add(btnList.get(key));
 		}
 	}
-	
+
 	public JButton getEndBtn() {
 		return endBtn;
 	}
 
-	public void setPnl(JPanel pnl) {
-		this.pnl = pnl;
+	public UserInfo getBtEndUserStatus() {
+		return useruser;
 	}
 
 	public JPanel getPnl() {
 		return pnl;
 	}
 
-	Battle_App(Enemy enemy, SaveInfo user) {
-		pnl.setBackground(Design.LWhite);	
+	public void setPnl(Enemy enemy, UserInfo user, String id) {
+		String userID = id;
+		//  {	// 좀비에게 죽었을 때
+		useruser = user;
+		pnl.setBackground(Design.LWhite);
 		Battle_Algo ba = new Battle_Algo();
 		SkillImpl si = new SkillImpl();
+		AchievementsTest at = new AchievementsTest();
 		int enemyFullLife = enemy.getLife();
 
 		phaseCountNum = 1;
+		
+		at.addPlayerInfo(userID, "yourAttainment", enemy.getId());
 
 		BoxLayout pnlLayout = new BoxLayout(pnl, BoxLayout.Y_AXIS);
 		pnl.setLayout(pnlLayout);
@@ -182,11 +221,17 @@ public class Battle_App extends JFrame {
 		/////////////////// enemyBox
 		Toolkit kit = Toolkit.getDefaultToolkit();
 		String idURL = String.valueOf(enemy.getId());
-		URL eee = Battle_App.class.getClassLoader().getResource("Enemy/"+idURL+".png");
+		URL eee = Battle_App.class.getClassLoader().getResource("Enemy/" + idURL + ".png");
 		ImageIcon enemyImg = new ImageIcon(kit.getImage(eee));
-		
+
 		JLabel enemyImgLB = new JLabel(enemyImg);
 		enemyBox.add(enemyImgLB);
+
+		enemyImgLB.setToolTipText("<html><p>" + "몬스터 이름: " + enemy.getName() + "<br>몬스터의 상태: "
+				+ ba.getEnemyIniVar(enemy) + "<br>" + ba.getEnemyPOW(enemy) + "</p></html>");
+		ToolTipManager m = ToolTipManager.sharedInstance(); // 툴팁 여는 시간 조정 위해 객체 생성
+		m.setInitialDelay(0); // 초기 툴팁 출력 지연시간 0초 설정
+
 		Map<Integer, JLabel> enemyLifeImg = new HashMap<>();
 		for (int i = 0; i < enemyFullLife; i++) {
 			JLabel a = new JLabel(heart_fullImg);
@@ -198,28 +243,31 @@ public class Battle_App extends JFrame {
 		JLabel phaseCount = new JLabel(phaseCountNum + "턴    ");
 		JLabel enemyStatus = new JLabel(ba.enemyStatus(enemy));
 		
+		enemyStatus.setToolTipText("몬스터의 적개심. 공격을 할 수록 높아집니다. 전투가 끝날 때 일정 이상 높으면 바로 죽어요. 주의!");
+		ToolTipManager m2 = ToolTipManager.sharedInstance(); // 툴팁 여는 시간 조정 위해 객체 생성
+		m2.setInitialDelay(0); // 초기 툴팁 출력 지연시간 0초 설정
+
 		phaseCount.setIcon(middle_LImg);
 		phaseCount.setFont(Design.MSFont);
 		phaseCount.setForeground(Design.SBlack);
 		phaseCount.setHorizontalTextPosition(JLabel.CENTER);
-		
+
 		enemyStatus.setIcon(middle_RImg);
 		enemyStatus.setFont(Design.MSFont);
 		enemyStatus.setForeground(Design.SBlack);
 		enemyStatus.setHorizontalTextPosition(JLabel.CENTER);
-		
-		
+
 		middleBox.add(phaseCount);
 		middleBox.add(enemyStatus);
 
 		////////////////////// userBox
 		Map<Integer, JLabel> userLifeImg = new HashMap<>();
-		for (int i = 0; i < user.getHp(); i++) {
+		for (int i = 0; i < useruser.getHp(); i++) {
 			JLabel a = new JLabel(heart_fullImg);
 			userLifeImg.put(i, a);
 			userBox.add(a);
 		}
-		for (int i = user.getHp(); i < user.FULL_HP; i++) {
+		for (int i = useruser.getHp(); i < UserInfo.FULL_HP; i++) {
 			JLabel a = new JLabel(heart_emptyImg);
 			userLifeImg.put(i, a);
 			userBox.add(a);
@@ -232,10 +280,13 @@ public class Battle_App extends JFrame {
 
 		// 행동 선택 / 버튼 패널 (A
 		JPanel chooseAct = new TSPanel();
+		JButton attackBtn = new ColorButton("공격", Design.SRed, Color.white);
+		JButton actionBtn = new ColorButton("행동", Design.SBlue, Color.white);
+		JButton runAwayBtn = new ColorButton("도망", Design.SGreen, Color.white);
+		attackBtn.setPreferredSize(new Dimension(200, 200));
+		actionBtn.setPreferredSize(new Dimension(200, 200));
+		runAwayBtn.setPreferredSize(new Dimension(200, 200));
 
-		JButton attackBtn = new JButton("공격");
-		JButton actionBtn = new JButton("행동");
-		JButton runAwayBtn = new JButton("도망");
 		chooseAct.add(attackBtn);
 		chooseAct.add(actionBtn);
 		chooseAct.add(runAwayBtn);
@@ -247,7 +298,7 @@ public class Battle_App extends JFrame {
 		BoxLayout skillBoxLayout = new BoxLayout(skillBox, BoxLayout.Y_AXIS);
 		skillBox.setLayout(skillBoxLayout);
 
-		JButton backBtn = new JButton("뒤로가기");
+		JButton backBtn = new ColorButton("뒤로가기");
 		chooseSkill.add(skillBox);
 		chooseSkill.add(backBtn);
 
@@ -256,11 +307,11 @@ public class Battle_App extends JFrame {
 		BoxLayout skillResultLayout = new BoxLayout(skillResult, BoxLayout.Y_AXIS);
 		skillResult.setLayout(skillResultLayout);
 
-		JLabel focusUser = new JLabel("::우리의 행동::");
+//		JLabel focusUser = new JLabel("::우리의 행동::");
 		JTextArea printUserResult = new BattleTextArea();
-		JButton nextBtnC = new JButton("다음");
+		JButton nextBtnC = new ColorButton("다음");
 
-		skillResult.add(focusUser);
+//		skillResult.add(focusUser);
 		skillResult.add(printUserResult);
 		skillResult.add(nextBtnC);
 
@@ -269,11 +320,11 @@ public class Battle_App extends JFrame {
 		BoxLayout enemyResultLayout = new BoxLayout(enemyResult, BoxLayout.Y_AXIS);
 		enemyResult.setLayout(enemyResultLayout);
 
-		JLabel focusEnemy = new JLabel("::적의 행동::");
+//		JLabel focusEnemy = new JLabel("::적의 행동::");
 		JTextArea printEnemyResult = new BattleTextArea();
-		JButton nextBtnD = new JButton("다음");
+		JButton nextBtnD = new ColorButton("다음");
 
-		enemyResult.add(focusEnemy);
+//		enemyResult.add(focusEnemy);
 		enemyResult.add(printEnemyResult);
 		enemyResult.add(nextBtnD);
 
@@ -317,23 +368,35 @@ public class Battle_App extends JFrame {
 					}
 				}
 				// 버튼에 따른 내 스킬 객체 찾는 로직
+				
 
 				// 스킬 실행
 				System.out.println(thisSkill.getName());
 				int[] result = ba.letsUseSkill(enemy, thisSkill);
+				ItemDao id = new ItemDao();
+				ItemConsole ic = new ItemConsole(id, useruser);
+				
+				boolean a = ic.wpnUseDown(Integer.valueOf(thisSkill.getNeedItem()));
+				if (a) {
+					JOptionPane.showMessageDialog(null, "내구도가 다 되어 아이템이 파괴됩니다.\n파괴되는 아이템: "+ba.getSkillNeed(thisSkill), "내구도 알림", JOptionPane.INFORMATION_MESSAGE);
+				}
+				
 
+				if (thisSkill.getId()==5001 && result[3]==1) {
+					at.addPlayerInfo(userID, "yourAch", 8);
+				}
 				// 결과창 보여주기
-				printUserResult.setText(thisSkill.getName() + "\n" + thisSkill.getSkillScript(result[3]));
+				printUserResult.setText("<우리의 행동>\n"+ thisSkill.getName() + "\n" + thisSkill.getSkillScript(result[3]));
 
 				enemy.setIniVar(enemy.getIniVar() + result[0]);
 				enemy.setLife(enemy.getLife() + result[1]);
-				user.setHp(user.getHp() + result[2]);
+				useruser.setHp(useruser.getHp() + result[2]);
 
 				if (enemy.getLife() < 1) {
 					enemy.setLife(0);
 				}
-				if (user.getHp() < 1) {
-					user.setHp(0);
+				if (useruser.getHp() < 1) {
+					useruser.setHp(0);
 				}
 
 				for (int i = 0; i < enemy.getLife(); i++) {
@@ -343,10 +406,10 @@ public class Battle_App extends JFrame {
 				for (int i = enemy.getLife(); i < ii; i++) {
 					enemyLifeImg.get(i).setIcon(heart_emptyImg);
 				}
-				for (int i = 0; i < user.getHp(); i++) {
+				for (int i = 0; i < useruser.getHp(); i++) {
 					userLifeImg.get(i).setIcon(heart_fullImg);
 				}
-				for (int i = user.getHp(); i < user.FULL_HP; i++) {
+				for (int i = useruser.getHp(); i < UserInfo.FULL_HP; i++) {
 					userLifeImg.get(i).setIcon(heart_emptyImg);
 				}
 				// 넘기기
@@ -362,8 +425,8 @@ public class Battle_App extends JFrame {
 				skillBox.removeAll();
 
 				if (eBtn.getText().equals("공격")) {
-					useSkillList = si.getAttckSkillList(enemy.getId(), user.getInventory());
-					useSkillList.addAll(si.getHeistSkillList(enemy.getId(), user.getInventory()));
+					useSkillList = si.getAttckSkillList(enemy.getId(), useruser.getInventory());
+					useSkillList.addAll(si.getHeistSkillList(enemy.getId(), useruser.getInventory()));
 					setUseSkillBtnList(useSkillList);
 					addBtnToPnl(useSkillBtnList, skillBox);
 
@@ -373,7 +436,7 @@ public class Battle_App extends JFrame {
 					card.next(footerBox);
 
 				} else if (eBtn.getText().equals("행동")) {
-					useSkillList = si.getActionSkillList(enemy.getId(), user.getInventory());
+					useSkillList = si.getActionSkillList(enemy.getId(), useruser.getInventory());
 					setUseSkillBtnList(useSkillList);
 					addBtnToPnl(useSkillBtnList, skillBox);
 
@@ -384,9 +447,11 @@ public class Battle_App extends JFrame {
 				} else if (eBtn.getText().equals("도망")) {
 					isGetAway = ba.runAway(phaseCountNum, enemy);
 					if (isGetAway) {
-						printUserResult.setText("도망치기를 시도했다.\n도주확률: "+ba.calcGetAway(phaseCountNum, 0, enemy)+"\n. . .\n도망에 성공했다!");
+						printUserResult.setText(
+								"도망치기를 시도했다.\n도주확률: " + ba.calcGetAway(phaseCountNum, 0, enemy) + "\n. . .\n도망에 성공했다!");
 					} else {
-						printUserResult.setText("도망치기를 시도했다.\n도주확률: "+ba.calcGetAway(phaseCountNum, 0, enemy)+"\n. . .\n도망에 실패했다!");
+						printUserResult.setText(
+								"도망치기를 시도했다.\n도주확률: " + ba.calcGetAway(phaseCountNum, 0, enemy) + "\n. . .\n도망에 실패했다!");
 					}
 					card.show(footerBox, "C");
 				}
@@ -419,11 +484,28 @@ public class Battle_App extends JFrame {
 				}
 				// 전투 지속인지 종료인지 판별해 알맞은 화면으로 넘김
 				if (isDead || isHappy || isGetAway) {
-					String result = getBattleEndScript(enemy);
+					Map<String, Integer> map = getBattleEndScript(enemy, useruser);
+
+					String result = "";
+					Integer item = null;
+
+					for (Entry<String, Integer> entry : map.entrySet()) {
+						result = result.concat(entry.getKey());
+						item = entry.getValue();
+					}
+
+					if (item != null) {
+						ItemDao id = new ItemDao();
+						ItemConsole ic = new ItemConsole(id, useruser);
+						ic.getItem(item);
+					}
 
 					////////////// 화면 구현
 					battleRPrint.setText(result);
 					enemyStatus.setText("");
+					if (user.getHp()<=0 && enemy.getId()/10==1 || enemy.getId()/10==2) {
+						at.addPlayerInfo("masic22x", "yourZombiDeath", 1);
+					}
 					card.show(footerBox, "E");
 				} else {
 					// 전투 지속일 때만 적 행동 로직 진행
@@ -435,21 +517,21 @@ public class Battle_App extends JFrame {
 						s = entry.getValue();
 					}
 					System.out.println(s);
-					user.setHp(user.getHp() - d);
+					useruser.setHp(useruser.getHp() - d);
 
 					// 적 행동 화면 반영 - footerBox
-					printEnemyResult.setText(s);
+					printEnemyResult.setText("<적의 행동>\n"+s);
 
 					// 적행동 화면 반영 - user::
 
-					if (user.getHp() < 1) {
-						user.setHp(0);
+					if (useruser.getHp() < 1) {
+						useruser.setHp(0);
 					}
 
-					for (int i = 0; i < user.getHp(); i++) {
+					for (int i = 0; i < useruser.getHp(); i++) {
 						userLifeImg.get(i).setIcon(heart_fullImg);
 					}
-					for (int i = user.getHp(); i < user.FULL_HP; i++) {
+					for (int i = useruser.getHp(); i < UserInfo.FULL_HP; i++) {
 						userLifeImg.get(i).setIcon(heart_emptyImg);
 					}
 					card.show(footerBox, "D");
@@ -461,14 +543,32 @@ public class Battle_App extends JFrame {
 		ActionListener nextBtnDact = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				String result = getBattleEndScript(enemy);
+
+				Map<String, Integer> map = getBattleEndScript(enemy, useruser);
+
+				String result = "";
+				Integer item = null;
+
+				for (Entry<String, Integer> entry : map.entrySet()) {
+					result = result.concat(entry.getKey());
+					item = entry.getValue();
+				}
+
+				if (item != null) {
+					ItemDao id = new ItemDao();
+					ItemConsole ic = new ItemConsole(id, useruser);
+					ic.getItem(item);
+				}
 
 				////////////// 화면 구현
-				enemyStatus.setText("------------------");
+				enemyStatus.setText("");
 				battleRPrint.setText(result);
-				
+
 				///////////// 턴수 확인해서 A로 갈지 E로 갈지 정하는 로직
-				if (user.getHp() <= 0 || phaseCountNum >= 3) {
+				if (useruser.getHp() <= 0 || phaseCountNum >= 3) {
+					if (user.getHp()<=0 && enemy.getId()/10==1 || enemy.getId()/10==2) {
+						at.addPlayerInfo(userID, "yourZombiDeath", 1);
+					}
 					card.show(footerBox, "E");
 				} else {
 					phaseCountNum++;
@@ -480,18 +580,21 @@ public class Battle_App extends JFrame {
 		};
 		nextBtnC.addActionListener(nextBtnCact);
 		nextBtnD.addActionListener(nextBtnDact);
-
-		//////////////////////////// etc
-		add(pnl);
-		setSize(800, 900);
 	}
-
+	
 	public static void main(String[] args) {
-		Battle_Algo ba = new Battle_Algo();
-		SaveInfo user = ba.setUserData();
+		Battle_App ba = new Battle_App();
+		Battle_Algo baa = new Battle_Algo();
+		JFrame f = new JFrame();
 		Enemy_Dao ed = new Enemy_Dao();
+		JPanel pnl;
+		
 		Enemy enemy = ed.selectRandomEnemy(1);
-
-		new Battle_App(enemy, user).setVisible(true);
+		UserInfo user = baa.setUserData();
+		ba.setPnl(enemy, user, "123");
+		pnl = ba.getPnl();
+		f.add(pnl);
+		f.setSize(800, 900);
+		f.setVisible(true);
 	}
 }

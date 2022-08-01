@@ -3,14 +3,14 @@ package savehere;
 public class SaveHere {
 	private int num;
 	private String userId;
-	private String storyPath, storyPath2, dayNight, date, userStat, party, item;
+	private String storyPath1, storyPath2, dayNight, date, userStat, party, item;
 	
-	public SaveHere(String userId, String stroyPath, String storyPath2, String dayNight, String date,
+	public SaveHere(String userId, String storyPath, String storyPath2, String dayNight, String date,
 			String userStat, String party, String item) {
 		super();
 		
 		this.userId = userId;
-		this.storyPath = stroyPath;
+		this.storyPath1 = storyPath;
 		this.storyPath2 = storyPath2;
 		this.dayNight = dayNight;
 		this.date = date;
@@ -22,7 +22,7 @@ public class SaveHere {
 	public SaveHere(String userId, String stroyPath) {
 		super();
 		this.userId = userId;
-		this.storyPath = stroyPath;
+		this.storyPath1 = stroyPath;
 	}
 	
 	
@@ -30,7 +30,7 @@ public class SaveHere {
 	public SaveHere(String userId, String stroyPath, String storyPath2) {
 		super();
 		this.userId = userId;
-		this.storyPath = stroyPath;
+		this.storyPath1 = stroyPath;
 		this.storyPath2 = storyPath2;
 	}
 
@@ -50,12 +50,12 @@ public class SaveHere {
 		this.userId = userId;
 	}
 
-	public String getStroyPath1() {
-		return storyPath;
+	public String getStoryPath1() {
+		return storyPath1;
 	}
 
-	public void setStroyPath1(String stroyPath) {
-		this.storyPath = stroyPath;
+	public void setStoryPath1(String stroyPath) {
+		this.storyPath1 = stroyPath;
 	}
 
 
@@ -111,7 +111,7 @@ public class SaveHere {
 
 	@Override
 	public String toString() {
-		return "SaveHere [num=" + num + ", userId=" + userId + ", stroyPath=" + storyPath + ", storyPath2=" + storyPath2
+		return "SaveHere [num=" + num + ", userId=" + userId + ", stroyPath=" + storyPath1 + ", storyPath2=" + storyPath2
 				+ ", dayNight=" + dayNight + ", date=" + date + ", userStat=" + userStat + ", party=" + party
 				+ ", item=" + item + "]";
 	}
@@ -129,10 +129,10 @@ public class SaveHere {
 				return false;
 		} else if (!storyPath2.equals(other.storyPath2))
 			return false;
-		if (storyPath == null) {
-			if (other.storyPath != null)
+		if (storyPath1 == null) {
+			if (other.storyPath1 != null)
 				return false;
-		} else if (!storyPath.equals(other.storyPath))
+		} else if (!storyPath1.equals(other.storyPath1))
 			return false;
 		if (userId == null) {
 			if (other.userId != null)
