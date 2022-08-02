@@ -7,6 +7,7 @@ public class Add {
         int x;  // 변수 선언 (variable declare) 변수 x 생성; 변수 x의 자료형 타입은 int
         int y;
         int sum;
+// 우아앙
 //변수 이름을 정할때의 규칙
 //변수 이름은 영어 소문자로 시작 (클래스 이름은 영어 대문자로 시작)
 //영소문자로 시작했다면 숫자도 올 수 있음. (ex)itm01
@@ -24,7 +25,7 @@ public class Add {
 
         System.out.println(sum);
 
-
+System.out.printin("내가 고작 이정도도 어려워했다니!");
 
 
         //산술연산자 공부
