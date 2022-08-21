@@ -1,6 +1,5 @@
 public class Add {
     public static void main(String [] args) {
-        // 하ㅣㄴ러아밀;ㅓㅇ
 
 //data type (자료형)
 //int: 정수형
