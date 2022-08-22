@@ -1,6 +1,7 @@
 public class Add {
     public static void main(String [] args) {
 
+        // fdsafdsaf
 //data type (자료형)
 //int: 정수형
 //String: 문자열
