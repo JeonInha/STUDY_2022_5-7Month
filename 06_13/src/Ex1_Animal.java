@@ -25,7 +25,7 @@ class Cat extends Animal {
 }
 public class Ex1_Animal {
 	public static void main(String[] args) {
-	Cat kitty =new Cat();
-	kitty.play();
+	Cat cici =new Cat();
+	cici.play();
 	}
 }
